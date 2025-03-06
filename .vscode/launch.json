@@ -1,0 +1,36 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Download (J-Link)",
+            "cwd": "${workspaceFolder}",
+            "svdFile": "${workspaceFolder}/.vscode/STM32H750.svd",
+            "executable": "${workspaceFolder}/myboard/stm32h750vbt6/rt-thread.elf",
+            "request": "attach",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "interface": "swd",
+            "device": "STM32H750VBT6",
+            "showDevDebugOutput": "raw",
+            "runToEntryPoint": "",
+            "configFiles": [
+                "${workspaceFolder}/myboard/stm32h750vbt6/openocd-jlink.cfg",
+                //"/Users/leo/work/stm32h7-bootloader-application/scripts/target/stm32h7x_extern.cfg"
+            ],
+            "serverArgs": [
+                "-c init",
+                "-c halt",
+                "-c flash write_image erase ${workspaceFolder}/myboard/stm32h750vbt6/rt-thread.elf 0x00000000",
+                "-c reset",
+                "-c exit"
+            ],
+            // "preLaunchCommands": [
+            //     "monitor reset halt"
+            // ],
+            // "postLaunchCommands": [
+            // "monitor reset halt",
+            // "monitor sleep 2000"
+            // ]
+        }
+    ]
+}
