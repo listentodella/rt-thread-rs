@@ -1,0 +1,4 @@
+[submodule "rt-thread"]
+	path = rt-thread
+	url = git@github.com:RT-Thread/rt-thread.git
+	branch = master
