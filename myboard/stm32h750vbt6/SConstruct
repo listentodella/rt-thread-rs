@@ -83,5 +83,13 @@ else:
 # exit(-1)
 objs.extend(SConscript(os.path.join(libraries_rs_path_prefix, "SConscript")))
 
+if os.path.exists(RTT_ROOT + "../rustapp"):
+    libraries_rsapp_path_prefix = RTT_ROOT + "../rustapp"
+else:
+    libraries_rsapp_path_prefix = os.path.dirname(RTT_ROOT) + "/rustapp"
+
+objs.extend(SConscript(os.path.join(libraries_rsapp_path_prefix, "SConscript")))
+
+
 # make a building
 DoBuilding(TARGET, objs)

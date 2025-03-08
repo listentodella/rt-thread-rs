@@ -160,9 +160,6 @@ pub const DFS_FD_MAX: u32 = 16;
 pub const DFS_FILESYSTEMS_MAX: u32 = 4;
 pub const DFS_FILESYSTEM_TYPES_MAX: u32 = 4;
 pub const RT_UNAMED_PIPE_NUMBER: u32 = 64;
-pub const RT_HWCRYPTO_DEFAULT_NAME: &[u8; 8] = b"hwcryto\0";
-pub const RT_HWCRYPTO_IV_MAX_SIZE: u32 = 16;
-pub const RT_HWCRYPTO_KEYBIT_MAX_SIZE: u32 = 256;
 pub const RT_LIBC_TZ_DEFAULT_HOUR: u32 = 8;
 pub const RT_LIBC_TZ_DEFAULT_MIN: u32 = 0;
 pub const RT_LIBC_TZ_DEFAULT_SEC: u32 = 0;
@@ -186,7 +183,7 @@ pub const __SVID_VISIBLE: u32 = 1;
 pub const __XSI_VISIBLE: u32 = 0;
 pub const __SSP_FORTIFY_LEVEL: u32 = 0;
 pub const __have_longlong64: u32 = 1;
-pub const __have_long32: u32 = 1;
+pub const __have_long64: u32 = 1;
 pub const ___int8_t_defined: u32 = 1;
 pub const ___int16_t_defined: u32 = 1;
 pub const ___int32_t_defined: u32 = 1;
@@ -519,10 +516,10 @@ pub type __int_least32_t = ::core::ffi::c_int;
 pub type __uint_least32_t = ::core::ffi::c_uint;
 pub type __int_least64_t = ::core::ffi::c_longlong;
 pub type __uint_least64_t = ::core::ffi::c_ulonglong;
-pub type __intmax_t = ::core::ffi::c_longlong;
-pub type __uintmax_t = ::core::ffi::c_ulonglong;
-pub type __intptr_t = ::core::ffi::c_int;
-pub type __uintptr_t = ::core::ffi::c_uint;
+pub type __intmax_t = ::core::ffi::c_long;
+pub type __uintmax_t = ::core::ffi::c_ulong;
+pub type __intptr_t = ::core::ffi::c_long;
+pub type __uintptr_t = ::core::ffi::c_ulong;
 pub type intmax_t = __intmax_t;
 pub type uintmax_t = __uintmax_t;
 pub type int_least8_t = __int_least8_t;
@@ -541,15 +538,10 @@ pub type int_fast32_t = ::core::ffi::c_int;
 pub type uint_fast32_t = ::core::ffi::c_uint;
 pub type int_fast64_t = ::core::ffi::c_longlong;
 pub type uint_fast64_t = ::core::ffi::c_ulonglong;
-pub type wchar_t = ::core::ffi::c_uint;
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct max_align_t {
-    pub __clang_max_align_nonce1: ::core::ffi::c_longlong,
-    pub __clang_max_align_nonce2: f64,
-}
-pub type __gnuc_va_list = u32;
-pub type va_list = u32;
+pub type wchar_t = ::core::ffi::c_int;
+pub type max_align_t = u128;
+pub type __gnuc_va_list = __builtin_va_list;
+pub type va_list = __builtin_va_list;
 pub type u_int8_t = __uint8_t;
 pub type u_int16_t = __uint16_t;
 pub type u_int32_t = __uint32_t;
@@ -573,8 +565,8 @@ pub type __off_t = _off_t;
 pub type __loff_t = _off64_t;
 pub type __key_t = ::core::ffi::c_long;
 pub type _fpos_t = ::core::ffi::c_long;
-pub type __size_t = ::core::ffi::c_uint;
-pub type _ssize_t = ::core::ffi::c_int;
+pub type __size_t = ::core::ffi::c_ulong;
+pub type _ssize_t = ::core::ffi::c_long;
 pub type __ssize_t = _ssize_t;
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -590,7 +582,7 @@ pub union _mbstate_t__bindgen_ty_1 {
 }
 pub type _iconv_t = *mut ::core::ffi::c_void;
 pub type __clock_t = ::core::ffi::c_ulong;
-pub type __time_t = __int_least64_t;
+pub type __time_t = ::core::ffi::c_long;
 pub type __clockid_t = ::core::ffi::c_ulong;
 pub type __daddr_t = ::core::ffi::c_long;
 pub type __timer_t = ::core::ffi::c_ulong;
@@ -600,10 +592,10 @@ pub type __nl_item = ::core::ffi::c_int;
 pub type __nlink_t = ::core::ffi::c_ushort;
 pub type __suseconds_t = ::core::ffi::c_long;
 pub type __useconds_t = ::core::ffi::c_ulong;
-pub type __va_list = u32;
+pub type __va_list = __builtin_va_list;
 pub type __sigset_t = ::core::ffi::c_ulong;
 pub type suseconds_t = __suseconds_t;
-pub type time_t = __int_least64_t;
+pub type time_t = ::core::ffi::c_long;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct timeval {
@@ -628,7 +620,7 @@ pub type fd_mask = __fd_mask;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct fd_set {
-    pub __fds_bits: [__fd_mask; 2usize],
+    pub __fds_bits: [__fd_mask; 1usize],
 }
 pub type in_addr_t = __uint32_t;
 pub type in_port_t = __uint16_t;
@@ -700,7 +692,7 @@ pub struct pthread_once_t {
     pub is_initialized: ::core::ffi::c_int,
     pub init_executed: ::core::ffi::c_int,
 }
-pub type __ULong = ::core::ffi::c_ulong;
+pub type __ULong = ::core::ffi::c_uint;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct __lock {
@@ -1584,6 +1576,15 @@ pub struct rt_mq_message {
     pub next: *mut rt_mq_message,
     pub length: rt_ssize_t,
 }
+pub type __builtin_va_list = [__va_list_tag; 1usize];
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct __va_list_tag {
+    pub gp_offset: ::core::ffi::c_uint,
+    pub fp_offset: ::core::ffi::c_uint,
+    pub overflow_arg_area: *mut ::core::ffi::c_void,
+    pub reg_save_area: *mut ::core::ffi::c_void,
+}
 unsafe extern "C" {
     pub fn select(
         __n: ::core::ffi::c_int,
@@ -1767,13 +1768,13 @@ unsafe extern "C" {
     pub fn rt_vsprintf(
         dest: *mut ::core::ffi::c_char,
         format: *const ::core::ffi::c_char,
-        arg_ptr: va_list,
+        arg_ptr: *mut __va_list_tag,
     ) -> ::core::ffi::c_int;
     pub fn rt_vsnprintf(
         buf: *mut ::core::ffi::c_char,
         size: rt_size_t,
         fmt: *const ::core::ffi::c_char,
-        args: va_list,
+        args: *mut __va_list_tag,
     ) -> ::core::ffi::c_int;
     pub fn rt_sprintf(
         buf: *mut ::core::ffi::c_char,
@@ -1789,7 +1790,7 @@ unsafe extern "C" {
     pub fn rt_vsscanf(
         buffer: *const ::core::ffi::c_char,
         format: *const ::core::ffi::c_char,
-        ap: va_list,
+        ap: *mut __va_list_tag,
     ) -> ::core::ffi::c_int;
     pub fn rt_sscanf(
         str_: *const ::core::ffi::c_char,
@@ -1805,6 +1806,7 @@ unsafe extern "C" {
     pub static mut global_syscall_list: *mut finsh_syscall_item;
     pub static mut _syscall_table_begin: *mut finsh_syscall;
     pub static mut _syscall_table_end: *mut finsh_syscall;
+    pub fn finsh_syscall_next(call: *mut finsh_syscall) -> *mut finsh_syscall;
     pub fn finsh_set_device(device_name: *const ::core::ffi::c_char);
     pub fn entry() -> ::core::ffi::c_int;
     #[doc = " @addtogroup group_KernelObject\n @{"]

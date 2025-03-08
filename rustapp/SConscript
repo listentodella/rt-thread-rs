@@ -15,18 +15,17 @@ cargo = Builder(action = [
     chdir = 0)
 
 Env.Append(BUILDERS = {'Cargo' : cargo})
-Env.AppendUnique(LLVM_TARGET = llvm_target)
+#Env.AppendUnique(LLVM_TARGET = llvm_target)
 
 cwd = GetCurrentDir()
 src = Glob('*.c')
 CPPPATH = [cwd, ]
 
-# 'rustffi' is ".a" file name
-rustffi = Env.Cargo('rustffi', 'Cargo.toml')
-Env.AlwaysBuild(rustffi)
+# 'rustapp' is ".a" file name
+rustapp = Env.Cargo('rustapp', 'Cargo.toml')
+Env.AlwaysBuild(rustapp)
 
-group = DefineGroup('rustffi', src, depend = [''], LIBS = [rustffi], CPPPATH = CPPPATH, #LINKFLAGS = ' -z muldefs'
+group = DefineGroup('rustapp', src, depend = [''], LIBS = [rustapp], CPPPATH = CPPPATH, #LINKFLAGS = ' -z muldefs'
                     )
-
 
 Return('group')
