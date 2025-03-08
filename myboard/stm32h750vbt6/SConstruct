@@ -74,10 +74,10 @@ objs.extend(
 
 # include rust app
 print(RTT_ROOT)
-if os.path.exists(RTT_ROOT + "../rustapp"):
-    libraries_rs_path_prefix = RTT_ROOT + "../rustapp"
+if os.path.exists(RTT_ROOT + "../rustffi"):
+    libraries_rs_path_prefix = RTT_ROOT + "../rustffi"
 else:
-    libraries_rs_path_prefix = os.path.dirname(RTT_ROOT) + "/rustapp"
+    libraries_rs_path_prefix = os.path.dirname(RTT_ROOT) + "/rustffi"
 
 # print(libraries_rs_path_prefix)
 # exit(-1)

@@ -319,16 +319,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
 
 [[package]]
-name = "rustapp"
-version = "0.1.0"
-dependencies = [
- "bindgen",
- "cortex-m",
- "embedded-hal 1.0.0",
- "stm32h7xx-hal",
-]
-
-[[package]]
 name = "rustc-hash"
 version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -341,6 +331,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "138e3e0acb6c9fb258b19b67cb8abd63c00679d2851805ea151465464fe9030a"
 dependencies = [
  "semver",
+]
+
+[[package]]
+name = "rustffi"
+version = "0.1.0"
+dependencies = [
+ "bindgen",
+ "cortex-m",
+ "embedded-hal 1.0.0",
+ "stm32h7xx-hal",
 ]
 
 [[package]]

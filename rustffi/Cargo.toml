@@ -1,5 +1,5 @@
 [package]
-name = "rustapp"
+name = "rustffi"
 version = "0.1.0"
 edition = "2021"
 

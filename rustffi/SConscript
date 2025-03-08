@@ -21,8 +21,8 @@ cwd = GetCurrentDir()
 src = Glob('*.c')
 CPPPATH = [cwd, ]
 
-# 'rustapp' is ".a" file name
-rttrust = Env.Cargo('rustapp', 'Cargo.toml')
+# 'rustffi' is ".a" file name
+rttrust = Env.Cargo('rustffi', 'Cargo.toml')
 Env.AlwaysBuild(rttrust)
 
 group = DefineGroup('Rust', src, depend = [''], LIBS = [rttrust], CPPPATH = CPPPATH, #LINKFLAGS = ' -z muldefs'
