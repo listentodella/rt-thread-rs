@@ -21,8 +21,11 @@ int main(void)
     /* set LED0 pin mode to output */
     rt_pin_mode(LED1_PIN, PIN_MODE_OUTPUT);
 
+    create_mq();
+
     while (count++) {
         rust_main();
+        rt_kprintf("rust_str:  %s\n", rust_str());
         rt_pin_write(LED1_PIN, PIN_HIGH);
         rt_thread_mdelay(500);
         rt_pin_write(LED1_PIN, PIN_LOW);

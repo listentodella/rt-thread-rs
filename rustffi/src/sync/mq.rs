@@ -1,6 +1,8 @@
-use crate::ffi;
-// use core::ffi::CStr;
+use alloc::ffi::CString;
 
+use crate::ffi;
+
+#[derive(Debug)]
 pub struct MessageQueue<T> {
     raw: ffi::rt_mq_t,
     _phantom: core::marker::PhantomData<T>,
@@ -13,7 +15,9 @@ impl<T: Copy + Send> MessageQueue<T> {
     pub fn new(name: &str, cap: usize) -> Option<Self> {
         let mq = unsafe {
             ffi::rt_mq_create(
-                name.as_ptr() as _,
+                //name.as_ptr() as _,
+                // from_vec_unchecked 会追加尾随的0字节
+                CString::from_vec_unchecked(name.into()).as_ptr(),
                 core::mem::size_of::<T>() as _,
                 cap as _,
                 ffi::RT_IPC_FLAG_FIFO as _,
