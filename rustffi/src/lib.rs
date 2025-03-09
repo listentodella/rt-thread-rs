@@ -5,6 +5,7 @@ extern crate alloc;
 pub mod ffi;
 
 mod allocator;
+mod cstr;
 pub mod delay;
 pub mod fmt;
 
