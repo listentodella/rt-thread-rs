@@ -5,9 +5,10 @@ extern crate alloc;
 pub mod ffi;
 
 mod allocator;
-mod cstr;
+pub mod cstr;
 pub mod delay;
 pub mod fmt;
+pub mod sync;
 
 #[panic_handler]
 fn panic(_info: &core::panic::PanicInfo) -> ! {

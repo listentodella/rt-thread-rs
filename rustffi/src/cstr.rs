@@ -11,7 +11,7 @@ pub type c_mut_str = *mut c_char;
 
 type NameArray = [u8; RT_NAME_MAX as usize];
 
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub struct RtName {
     buf: NameArray,
 }
