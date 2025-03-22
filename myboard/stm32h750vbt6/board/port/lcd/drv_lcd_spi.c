@@ -9,6 +9,7 @@
  */
 
 #include <board.h>
+#include <rtthread.h>
 
 #ifdef BSP_USING_LCD_SPI
 #include <drv_spi.h>
@@ -71,19 +72,19 @@ static void lcd_writedata_16bit(uint16_t lcd_data)
 
 void lcd_writebuff(uint16_t *databuff, uint16_t datasize)
 {
-    struct stm32_spi *spi_drv =  rt_container_of(((struct rt_spi_device *)_lcd.lcd_spi_dev)->bus, struct stm32_spi, spi_bus);
+    struct stm32_spi *spi_drv     = rt_container_of(((struct rt_spi_device *)_lcd.lcd_spi_dev)->bus, struct stm32_spi, spi_bus);
     SPI_HandleTypeDef *spi_handle = &spi_drv->handle;
 
     rt_pin_write(LCD_CMD_DATA_PIN, PIN_HIGH); // data
 
     // Additional setting (FifoThreshold) are required here, so we do not use rt_spi_configure
-    spi_handle->Init.DataSize   = SPI_DATASIZE_16BIT;
+    spi_handle->Init.DataSize      = SPI_DATASIZE_16BIT;
     spi_handle->Init.FifoThreshold = SPI_FIFO_THRESHOLD_02DATA;
     HAL_SPI_Init(spi_handle);
 
     rt_spi_send((struct rt_spi_device *)_lcd.lcd_spi_dev, databuff, datasize);
 
-    spi_handle->Init.DataSize   = SPI_DATASIZE_8BIT;
+    spi_handle->Init.DataSize      = SPI_DATASIZE_8BIT;
     spi_handle->Init.FifoThreshold = SPI_FIFO_THRESHOLD_08DATA;
     HAL_SPI_Init(spi_handle);
 }
@@ -104,7 +105,7 @@ void lcd_setaddress(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 void lcd_clear(uint32_t color)
 {
     rt_err_t res;
-    struct stm32_spi *spi_drv =  rt_container_of(((struct rt_spi_device *)_lcd.lcd_spi_dev)->bus, struct stm32_spi, spi_bus);
+    struct stm32_spi *spi_drv     = rt_container_of(((struct rt_spi_device *)_lcd.lcd_spi_dev)->bus, struct stm32_spi, spi_bus);
     SPI_HandleTypeDef *spi_handle = &spi_drv->handle;
 
     lcd_setaddress(0, 0, LCD_WIDTH - 1, LCD_HEIGHT - 1); // 设置坐标
@@ -112,17 +113,17 @@ void lcd_clear(uint32_t color)
     rt_pin_write(LCD_CMD_DATA_PIN, PIN_HIGH); // data
 
     // Additional setting (FifoThreshold) are required here, so we do not use rt_spi_configure
-    spi_handle->Init.DataSize   = SPI_DATASIZE_16BIT;
+    spi_handle->Init.DataSize      = SPI_DATASIZE_16BIT;
     spi_handle->Init.FifoThreshold = SPI_FIFO_THRESHOLD_02DATA;
     HAL_SPI_Init(spi_handle);
 
     rt_pin_write(LCD_SPI_DEV_CS_PIN, PIN_LOW); // cs
     res = SPI_Transmit_Ext((uint16_t)color, LCD_WIDTH * LCD_HEIGHT);
     rt_pin_write(LCD_SPI_DEV_CS_PIN, PIN_HIGH); // cs
-    if(res != RT_EOK)
+    if (res != RT_EOK)
         LOG_E("SPI_Transmit_Ext error: %d", res);
 
-    spi_handle->Init.DataSize   = SPI_DATASIZE_8BIT;
+    spi_handle->Init.DataSize      = SPI_DATASIZE_8BIT;
     spi_handle->Init.FifoThreshold = SPI_FIFO_THRESHOLD_08DATA;
     HAL_SPI_Init(spi_handle);
 }
@@ -130,7 +131,7 @@ void lcd_clear(uint32_t color)
 void lcd_clearrect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint32_t color)
 {
     rt_err_t res;
-    struct stm32_spi *spi_drv =  rt_container_of(((struct rt_spi_device *)_lcd.lcd_spi_dev)->bus, struct stm32_spi, spi_bus);
+    struct stm32_spi *spi_drv     = rt_container_of(((struct rt_spi_device *)_lcd.lcd_spi_dev)->bus, struct stm32_spi, spi_bus);
     SPI_HandleTypeDef *spi_handle = &spi_drv->handle;
 
     lcd_setaddress(x, y, x + width - 1, y + height - 1); // 设置坐标
@@ -138,17 +139,17 @@ void lcd_clearrect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint
     rt_pin_write(LCD_CMD_DATA_PIN, PIN_HIGH); // data
 
     // Additional setting (FifoThreshold) are required here, so we do not use rt_spi_configure
-    spi_handle->Init.DataSize   = SPI_DATASIZE_16BIT;
+    spi_handle->Init.DataSize      = SPI_DATASIZE_16BIT;
     spi_handle->Init.FifoThreshold = SPI_FIFO_THRESHOLD_02DATA;
     HAL_SPI_Init(spi_handle);
 
     rt_pin_write(LCD_SPI_DEV_CS_PIN, PIN_LOW); // cs
     res = SPI_Transmit_Ext((uint16_t)color, width * height);
     rt_pin_write(LCD_SPI_DEV_CS_PIN, PIN_HIGH); // cs
-    if(res != RT_EOK)
+    if (res != RT_EOK)
         LOG_E("SPI_Transmit_Ext error: %d", res);
 
-    spi_handle->Init.DataSize   = SPI_DATASIZE_8BIT;
+    spi_handle->Init.DataSize      = SPI_DATASIZE_8BIT;
     spi_handle->Init.FifoThreshold = SPI_FIFO_THRESHOLD_08DATA;
     HAL_SPI_Init(spi_handle);
 }
@@ -156,7 +157,7 @@ void lcd_clearrect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint
 void lcd_copybuffer(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t *databuff)
 {
     rt_err_t res;
-    struct stm32_spi *spi_drv =  rt_container_of(((struct rt_spi_device *)_lcd.lcd_spi_dev)->bus, struct stm32_spi, spi_bus);
+    struct stm32_spi *spi_drv     = rt_container_of(((struct rt_spi_device *)_lcd.lcd_spi_dev)->bus, struct stm32_spi, spi_bus);
     SPI_HandleTypeDef *spi_handle = &spi_drv->handle;
 
     lcd_setaddress(x, y, x + width - 1, y + height - 1); // 设置坐标
@@ -164,17 +165,17 @@ void lcd_copybuffer(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uin
     rt_pin_write(LCD_CMD_DATA_PIN, PIN_HIGH); // data
 
     // Additional setting (FifoThreshold) are required here, so we do not use rt_spi_configure
-    spi_handle->Init.DataSize   = SPI_DATASIZE_16BIT;
+    spi_handle->Init.DataSize      = SPI_DATASIZE_16BIT;
     spi_handle->Init.FifoThreshold = SPI_FIFO_THRESHOLD_02DATA;
     HAL_SPI_Init(spi_handle);
 
     rt_pin_write(LCD_SPI_DEV_CS_PIN, PIN_LOW); // cs
     res = SPI_TransmitBuffer_Ext(databuff, width * height);
     rt_pin_write(LCD_SPI_DEV_CS_PIN, PIN_HIGH); // cs
-    if(res != RT_EOK)
+    if (res != RT_EOK)
         LOG_E("SPI_TransmitBuffer_Ext error: %d", res);
 
-    spi_handle->Init.DataSize   = SPI_DATASIZE_8BIT;
+    spi_handle->Init.DataSize      = SPI_DATASIZE_8BIT;
     spi_handle->Init.FifoThreshold = SPI_FIFO_THRESHOLD_08DATA;
     HAL_SPI_Init(spi_handle);
 }
@@ -254,7 +255,7 @@ void lcd_drawline_v(uint16_t x, uint16_t y, uint16_t height, uint32_t color)
         LCD_Buff[i] = color; // 写入缓冲区
     }
     lcd_setaddress(x, y, x, y + height - 1); // 设置坐标
-    lcd_writebuff(LCD_Buff, height); // 写入显存
+    lcd_writebuff(LCD_Buff, height);         // 写入显存
 }
 
 void lcd_drawline_h(uint16_t x, uint16_t y, uint16_t width, uint32_t color)
@@ -264,7 +265,7 @@ void lcd_drawline_h(uint16_t x, uint16_t y, uint16_t width, uint32_t color)
         LCD_Buff[i] = color; // 写入缓冲区
     }
     lcd_setaddress(x, y, x + width - 1, y); // 设置坐标
-    lcd_writebuff(LCD_Buff, width); // 写入显存
+    lcd_writebuff(LCD_Buff, width);         // 写入显存
 }
 
 static rt_err_t stm32_lcd_init(struct drv_lcd_device *lcd)
@@ -275,9 +276,9 @@ static rt_err_t stm32_lcd_init(struct drv_lcd_device *lcd)
     result = rt_hw_spi_device_attach(LCD_SPI_BUS_NAME, LCD_SPI_DEV_NAME, LCD_SPI_DEV_CS_PIN);
 
     lcd->lcd_spi_dev = rt_device_find(LCD_SPI_DEV_NAME);
-    cfg.data_width = 8;
-    cfg.mode       = RT_SPI_MASTER | RT_SPI_MODE_0 | RT_SPI_MSB | RT_SPI_3WIRE;
-    cfg.max_hz     = LCD_SPI_MAX_SPEED;
+    cfg.data_width   = 8;
+    cfg.mode         = RT_SPI_MASTER | RT_SPI_MODE_0 | RT_SPI_MSB | RT_SPI_3WIRE;
+    cfg.max_hz       = LCD_SPI_MAX_SPEED;
     rt_spi_configure((struct rt_spi_device *)lcd->lcd_spi_dev, &cfg);
 
     rt_pin_mode(LCD_BACKLIGHT_PIN, PIN_MODE_OUTPUT);
@@ -369,11 +370,11 @@ static rt_err_t stm32_lcd_init(struct drv_lcd_device *lcd)
     lcd_writecommand(0x29); // 打开显示
 
     // set spi handler to ensure SPI_Transmit_Ext/SPI_TransmitBuffer_Ext function can be used
-    struct stm32_spi *spi_drv =  rt_container_of(((struct rt_spi_device *)lcd->lcd_spi_dev)->bus, struct stm32_spi, spi_bus);
+    struct stm32_spi *spi_drv     = rt_container_of(((struct rt_spi_device *)lcd->lcd_spi_dev)->bus, struct stm32_spi, spi_bus);
     SPI_HandleTypeDef *spi_handle = &spi_drv->handle;
     Set_SPI_Handle_Ext(spi_handle);
 
-    lcd_clear(0xFFFFFF);                   // 清屏
+    lcd_clear(0xFFFFFF); // 清屏
 
     // 全部设置完毕之后，打开背光
     set_lcd_backlight(1);
@@ -399,7 +400,7 @@ static rt_err_t drv_lcd_control(struct rt_device *device, int cmd, void *args)
     switch (cmd) {
         case RTGRAPHIC_CTRL_RECT_UPDATE: {
             lcd_setaddress(0, 0, lcd->lcd_info.width - 1, lcd->lcd_info.height - 1);
-            lcd_writebuff((uint16_t*)lcd->lcd_info.framebuffer, LCD_BUF_SIZE / 2); // 16 bit write buffer
+            lcd_writebuff((uint16_t *)lcd->lcd_info.framebuffer, LCD_BUF_SIZE / 2); // 16 bit write buffer
         } break;
 
         case RTGRAPHIC_CTRL_GET_INFO: {
@@ -430,14 +431,13 @@ static rt_err_t drv_lcd_control(struct rt_device *device, int cmd, void *args)
 
 #ifdef RT_USING_DEVICE_OPS
 const static struct rt_device_ops lcd_ops =
-{
-    drv_lcd_init,
-    RT_NULL,
-    RT_NULL,
-    RT_NULL,
-    RT_NULL,
-    drv_lcd_control
-};
+    {
+        drv_lcd_init,
+        RT_NULL,
+        RT_NULL,
+        RT_NULL,
+        RT_NULL,
+        drv_lcd_control};
 #endif
 
 static void set_pixel(const char *pixel, int x, int y)
@@ -447,22 +447,20 @@ static void set_pixel(const char *pixel, int x, int y)
 
 void draw_hline(const char *pixel, int x1, int x2, int y)
 {
-    lcd_drawline_h(x1, y, ABS(x2 - x1), *((uint16_t*)pixel));
+    lcd_drawline_h(x1, y, ABS(x2 - x1), *((uint16_t *)pixel));
 }
 
 void draw_vline(const char *pixel, int x, int y1, int y2)
 {
-    lcd_drawline_v(x, y1, ABS(y2 - y1), *((uint16_t*)pixel));
+    lcd_drawline_v(x, y1, ABS(y2 - y1), *((uint16_t *)pixel));
 }
 
-const static struct rt_device_graphic_ops lcd_graphic_ops =
-{
+const static struct rt_device_graphic_ops lcd_graphic_ops = {
     set_pixel,
     RT_NULL,
     draw_hline,
     draw_vline,
-    RT_NULL
-};
+    RT_NULL};
 
 int drv_hw_lcd_init(void)
 {
@@ -508,7 +506,7 @@ int drv_hw_lcd_init(void)
     device->init    = drv_lcd_init;
     device->control = drv_lcd_control;
 #endif
-    device->user_data = (void*)&lcd_graphic_ops;
+    device->user_data = (void *)&lcd_graphic_ops;
 
     /* register lcd device */
     rt_device_register(device, "lcd", RT_DEVICE_FLAG_RDWR);
@@ -580,37 +578,31 @@ MSH_CMD_EXPORT(lcd_test, lcd_test);
 void lcd_auto_fill(void *para)
 {
     int num = (int)para;
-    do
-    {
+    do {
         lcd_clear(rt_tick_get());
         rt_thread_mdelay(1000);
-    }while(--num);
+    } while (--num);
 }
 
 #include <stdlib.h> /* atoi */
 void lcd_fill(int argc, void **argv)
 {
     static rt_uint8_t lcd_init = 0;
-    rt_device_t lcd = RT_NULL;
+    rt_device_t lcd            = RT_NULL;
 
-    if(lcd_init == 0)
-    {
+    if (lcd_init == 0) {
         lcd_init = 1;
 
         lcd = rt_device_find("lcd");
         rt_device_init(lcd);
     }
 
-    if(argc == 1)
-    {
+    if (argc == 1) {
         lcd_auto_fill((void *)1);
-    }
-    else if(argc == 3)
-    {
-        if(rt_strcmp(argv[1], "-t")==0)
-        {
+    } else if (argc == 3) {
+        if (rt_strcmp(argv[1], "-t") == 0) {
             rt_thread_t tid = RT_NULL;
-            tid = rt_thread_create("lcd_fill", lcd_auto_fill, (void *)atoi(argv[2]), 512, 23,10);
+            tid             = rt_thread_create("lcd_fill", lcd_auto_fill, (void *)atoi(argv[2]), 512, 23, 10);
             rt_thread_startup(tid);
         }
     }

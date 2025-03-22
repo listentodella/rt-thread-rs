@@ -394,6 +394,7 @@
 
 /* Onboard Peripheral Drivers */
 
+#define BSP_USING_LCD_SPI
 /* end of Onboard Peripheral Drivers */
 
 /* On-chip Peripheral Drivers */
@@ -401,6 +402,8 @@
 #define BSP_USING_GPIO
 #define BSP_USING_UART
 #define BSP_USING_UART1
+#define BSP_USING_SPI
+#define BSP_USING_SPI4
 /* end of On-chip Peripheral Drivers */
 
 /* Board extended module Drivers */
