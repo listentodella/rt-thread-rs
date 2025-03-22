@@ -8,10 +8,15 @@ crate-type = ["staticlib"]
 
 [profile.dev]
 panic = "abort"
+debug = true
+lto = true
 
 [profile.release]
 panic = "abort"
+debug = true
 
 
 [dependencies]
+embassy-stm32 = { version = "0.2.0", features = ["stm32h750vb", "defmt", "time-driver-tim2"] }
+embedded-hal = "1.0.0"
 rustffi = { path = "../rustffi"}

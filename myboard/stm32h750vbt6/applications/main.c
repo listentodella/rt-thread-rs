@@ -13,23 +13,23 @@
 #include <rust.h>
 
 /* defined the LED1 pin: PC13 */
-#define LED1_PIN GET_PIN(C, 13)
+// #define LED1_PIN GET_PIN(C, 13)
 
 int main(void)
 {
     int count = 1;
     /* set LED0 pin mode to output */
-    rt_pin_mode(LED1_PIN, PIN_MODE_OUTPUT);
+    // rt_pin_mode(LED1_PIN, PIN_MODE_OUTPUT);
 
     create_mq();
 
     while (count++) {
+        rust_led();
         rust_main();
-        rt_kprintf("rust_str:  %s\n", rust_str());
-        rt_pin_write(LED1_PIN, PIN_HIGH);
+        // rt_kprintf("rust_str:  %s\n", rust_str());
+        // rt_pin_write(LED1_PIN, PIN_HIGH);
         rt_thread_mdelay(500);
-        rt_pin_write(LED1_PIN, PIN_LOW);
-        rt_thread_mdelay(500);
+        // rt_pin_write(LED1_PIN, PIN_LOW);
     }
     return RT_EOK;
 }
