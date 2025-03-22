@@ -16,8 +16,6 @@ panic = "abort"
 bindgen = "0.71.1"
 
 [dependencies]
-cortex-m = "0.7.7"
 # Type aliases to C types like c_int for use with bindgen
 # cty = "0.2.2"
 embedded-hal = "1.0.0"
-stm32h7xx-hal = { version = "0.16.0", features = ["stm32h750v"] }

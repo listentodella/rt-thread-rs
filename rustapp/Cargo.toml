@@ -17,6 +17,7 @@ debug = true
 
 
 [dependencies]
-embassy-stm32 = { version = "0.2.0", features = ["stm32h750vb", "defmt", "time-driver-tim2"] }
+cortex-m = { version = "0.7.7", features = ["critical-section-single-core"] }
+embassy-stm32 = { version = "0.2.0", features = ["stm32h750vb", "defmt"] }
 embedded-hal = "1.0.0"
 rustffi = { path = "../rustffi"}
