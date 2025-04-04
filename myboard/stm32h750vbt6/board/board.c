@@ -39,9 +39,6 @@ static struct rt_memheap _heap_backup_sram;
  */
 void SystemClock_Config(void)
 {
-#if 0
-    rust_system_clock_init();
-#else
     RCC_OscInitTypeDef RCC_OscInitStruct         = {0};
     RCC_ClkInitTypeDef RCC_ClkInitStruct         = {0};
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
@@ -98,7 +95,6 @@ void SystemClock_Config(void)
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
         Error_Handler();
     }
-#endif
 }
 
 static int init_sram(void)

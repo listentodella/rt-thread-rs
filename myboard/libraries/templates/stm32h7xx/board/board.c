@@ -15,7 +15,6 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
-
   /**Supply configuration update enable 
   */
   MODIFY_REG(PWR->CR3, PWR_CR3_SCUEN, 0);

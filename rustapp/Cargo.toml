@@ -20,6 +20,7 @@ debug = true
 assign-resources = "0.4.1"
 cortex-m = { version = "0.7.7", features = ["critical-section-single-core"] }
 critical-section = "1.2.0"
-embassy-stm32 = { version = "0.2.0", features = ["stm32h750vb"] }
+#embassy-stm32 = { version = "0.2.0", features = ["stm32h750vb"] }
 embedded-hal = "1.0.0"
 rustffi = { path = "../rustffi"}
+stm32h7xx-hal = { version = "0.16.0", features = ["stm32h750v"] }

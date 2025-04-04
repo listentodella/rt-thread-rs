@@ -25,8 +25,6 @@ int main(void)
     create_mq();
 
     while (count++) {
-        rust_led();
-        rust_imu();
         // rust_main();
         // rt_kprintf("rust_str:  %s\n", rust_str());
         // rt_pin_write(LED1_PIN, PIN_HIGH);

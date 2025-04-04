@@ -17,7 +17,7 @@ if os.getenv("RTT_ROOT"):
 # EXEC_PATH is the compiler execute path, for example, CodeSourcery, Keil MDK, IAR
 if CROSS_TOOL == "gcc":
     PLATFORM = "gcc"
-    EXEC_PATH = r"/usr/local/bin/"
+    EXEC_PATH = r"/usr/bin/"
 elif CROSS_TOOL == "keil":
     PLATFORM = "armcc"
     EXEC_PATH = r"D:/Keil/Keil_v5"
