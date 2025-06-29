@@ -403,7 +403,10 @@
 #define BSP_USING_UART
 #define BSP_USING_UART1
 #define BSP_USING_SPI
+#define BSP_USING_SPI3
+#define BSP_SPI3_TX_USING_DMA
 #define BSP_USING_SPI4
+#define BSP_SPI4_TX_USING_DMA
 /* end of On-chip Peripheral Drivers */
 
 /* Board extended module Drivers */

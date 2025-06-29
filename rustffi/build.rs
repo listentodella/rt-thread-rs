@@ -22,11 +22,20 @@ fn main() {
         "cargo:rerun-if-changed={}/include/rtthread.h",
         rtthread_path
     );
+    println!(
+        "cargo:rerun-if-changed={}/components/drivers/include/drivers/dev_spi.h",
+        rtthread_path
+    );
 
     // 构造 bindgen 构建器
     let bindings = bindgen::Builder::default()
         // 指定主头文件
         .header(format!("{}/include/rtthread.h", rtthread_path))
+        // 添加 SPI 头文件
+        .header(format!(
+            "{}/components/drivers/include/drivers/dev_spi.h",
+            rtthread_path
+        ))
         // 使用 core 而非 std
         .use_core()
         // 合并 extern "C" 块
@@ -40,6 +49,10 @@ fn main() {
         .clang_arg(format!("-I{}/include", rtthread_path))
         .clang_arg(format!("-I{}/components/legacy", rtthread_path))
         .clang_arg(format!("-I{}/components/drivers/include", rtthread_path))
+        .clang_arg(format!(
+            "-I{}/components/drivers/include/drivers",
+            rtthread_path
+        ))
         .clang_arg(format!("-I{}/components/finsh", rtthread_path))
         .clang_arg(format!("-I{}", cpu_path))
         .clang_arg(format!("-I{}", cross_path))

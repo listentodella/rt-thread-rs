@@ -3,10 +3,13 @@ extern crate alloc;
 use alloc::{ffi::CString, vec};
 use core::sync::atomic::{AtomicU32, Ordering};
 use embedded_hal::delay::DelayNs as _;
+use embedded_hal::spi::{SpiBus, SpiDevice};
 
 #[allow(non_camel_case_types, non_upper_case_globals, unused, non_snake_case)]
 use rustffi::println;
 use rustffi::{cstr, delay};
+
+mod spi_example;
 
 static CNT: AtomicU32 = AtomicU32::new(0);
 
@@ -63,7 +66,7 @@ pub extern "C" fn rust_str() -> *const u8 {
 
     static C_STR: &str = "rust_CString";
     let a = unsafe { core::ffi::CStr::from_bytes_with_nul_unchecked(C_STR.as_bytes()) };
-    a.as_ptr()
+    a.as_ptr() as *const u8
 }
 
 #[no_mangle]
@@ -76,4 +79,43 @@ pub extern "C" fn create_mq() {
     let a = mq.recv().unwrap();
     println!("recv = {}", a);
     core::mem::forget(mq);
+}
+
+#[no_mangle]
+pub extern "C" fn rust_test_spi() {
+    println!("Testing SPI with embedded_hal...");
+
+    // 使用 SPI 设备而不是 SPI 总线
+    let mut spi = match rustffi::spi::RtSpiDevice::<()>::new("spi30") {
+        Ok(spi) => spi,
+        Err(e) => {
+            println!("Failed to create SPI device: {:?}", e);
+            return;
+        }
+    };
+    println!("spi get success");
+
+    // 使用 SPI 设备的事务接口
+    let mut buf = [0u8; 2];
+    let write_data = [0x80 | 0x75];
+
+    match spi.transaction(&mut [
+        embedded_hal::spi::Operation::Write(&write_data),
+        embedded_hal::spi::Operation::Read(&mut buf),
+    ]) {
+        Ok(()) => println!("SPI transaction successful, buf = {:?}", buf),
+        Err(e) => println!("SPI transaction failed: {:?}", e),
+    }
+
+    // 测试 SPI 设备
+    // match spi_example::spi_demo() {
+    //     Ok(()) => println!("SPI device demo completed successfully"),
+    //     Err(e) => println!("SPI device demo failed: {:?}", e),
+    // }
+
+    // // 测试 SPI 总线
+    // match spi_example::spi_bus_demo() {
+    //     Ok(()) => println!("SPI bus demo completed successfully"),
+    //     Err(e) => println!("SPI bus demo failed: {:?}", e),
+    // }
 }

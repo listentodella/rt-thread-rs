@@ -8,7 +8,16 @@ mod allocator;
 pub mod cstr;
 pub mod delay;
 pub mod fmt;
+pub mod spi;
 pub mod sync;
+
+pub use allocator::*;
+pub use cstr::*;
+pub use delay::*;
+pub use ffi::*;
+pub use fmt::*;
+pub use spi::*;
+pub use sync::*;
 
 #[panic_handler]
 fn panic(_info: &core::panic::PanicInfo) -> ! {

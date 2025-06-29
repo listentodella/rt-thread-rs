@@ -143,12 +143,12 @@ pub const RT_ALIGN_SIZE: u32 = 8;
 pub const RT_THREAD_PRIORITY_MAX: u32 = 32;
 pub const RT_TICK_PER_SECOND: u32 = 1000;
 pub const RT_IDLE_HOOK_LIST_SIZE: u32 = 4;
-pub const IDLE_THREAD_STACK_SIZE: u32 = 256;
+pub const IDLE_THREAD_STACK_SIZE: u32 = 1024;
 pub const RT_CONSOLEBUF_SIZE: u32 = 128;
 pub const RT_CONSOLE_DEVICE_NAME: &[u8; 6] = b"uart1\0";
 pub const RT_VER_NUM: u32 = 328192;
 pub const RT_BACKTRACE_LEVEL_MAX_NR: u32 = 32;
-pub const RT_MAIN_THREAD_STACK_SIZE: u32 = 2048;
+pub const RT_MAIN_THREAD_STACK_SIZE: u32 = 4096;
 pub const RT_MAIN_THREAD_PRIORITY: u32 = 10;
 pub const FINSH_THREAD_NAME: &[u8; 7] = b"tshell\0";
 pub const FINSH_THREAD_PRIORITY: u32 = 20;
@@ -500,6 +500,43 @@ pub const RT_DEVICE_CTRL_CONSOLE_OFLAG: u32 = 9;
 pub const RT_DEVICE_CTRL_MASK: u32 = 31;
 pub const RT_CPU_CACHE_LINE_SZ: u32 = 32;
 pub const RT_THREAD_RESUME_RES_THR_ERR: i32 = -1;
+pub const EXIT_FAILURE: u32 = 1;
+pub const EXIT_SUCCESS: u32 = 0;
+pub const RAND_MAX: u32 = 2147483647;
+pub const PIN_NONE: i32 = -4;
+pub const PIN_LOW: u32 = 0;
+pub const PIN_HIGH: u32 = 1;
+pub const PIN_MODE_OUTPUT: u32 = 0;
+pub const PIN_MODE_INPUT: u32 = 1;
+pub const PIN_MODE_INPUT_PULLUP: u32 = 2;
+pub const PIN_MODE_INPUT_PULLDOWN: u32 = 3;
+pub const PIN_MODE_OUTPUT_OD: u32 = 4;
+pub const PIN_IRQ_MODE_RISING: u32 = 0;
+pub const PIN_IRQ_MODE_FALLING: u32 = 1;
+pub const PIN_IRQ_MODE_RISING_FALLING: u32 = 2;
+pub const PIN_IRQ_MODE_HIGH_LEVEL: u32 = 3;
+pub const PIN_IRQ_MODE_LOW_LEVEL: u32 = 4;
+pub const PIN_IRQ_DISABLE: u32 = 0;
+pub const PIN_IRQ_ENABLE: u32 = 1;
+pub const PIN_IRQ_PIN_NONE: i32 = -4;
+pub const RT_SPI_CPHA: u32 = 1;
+pub const RT_SPI_CPOL: u32 = 2;
+pub const RT_SPI_LSB: u32 = 0;
+pub const RT_SPI_MSB: u32 = 4;
+pub const RT_SPI_MASTER: u32 = 0;
+pub const RT_SPI_SLAVE: u32 = 8;
+pub const RT_SPI_CS_HIGH: u32 = 16;
+pub const RT_SPI_NO_CS: u32 = 32;
+pub const RT_SPI_3WIRE: u32 = 64;
+pub const RT_SPI_READY: u32 = 128;
+pub const RT_SPI_MODE_MASK: u32 = 255;
+pub const RT_SPI_MODE_0: u32 = 0;
+pub const RT_SPI_MODE_1: u32 = 1;
+pub const RT_SPI_MODE_2: u32 = 2;
+pub const RT_SPI_MODE_3: u32 = 3;
+pub const RT_SPI_BUS_MODE_SPI: u32 = 1;
+pub const RT_SPI_BUS_MODE_QSPI: u32 = 2;
+pub const RT_SPI_CS_CNT_MAX: u32 = 16;
 pub type __int8_t = ::core::ffi::c_schar;
 pub type __uint8_t = ::core::ffi::c_uchar;
 pub type __int16_t = ::core::ffi::c_short;
@@ -1442,11 +1479,6 @@ pub const RT_Device_Class_Bus: rt_device_class_type = 30;
 pub const RT_Device_Class_Unknown: rt_device_class_type = 31;
 #[doc = " device (I/O) class type"]
 pub type rt_device_class_type = ::core::ffi::c_uint;
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct rt_driver {
-    _unused: [u8; 0],
-}
 pub type rt_driver_t = *mut rt_driver;
 pub type rt_device_t = *mut rt_device;
 #[doc = " WaitQueue structure"]
@@ -1576,6 +1608,329 @@ pub struct rt_mq_message {
     pub next: *mut rt_mq_message,
     pub length: rt_ssize_t,
 }
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct div_t {
+    pub quot: ::core::ffi::c_int,
+    pub rem: ::core::ffi::c_int,
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct ldiv_t {
+    pub quot: ::core::ffi::c_long,
+    pub rem: ::core::ffi::c_long,
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct lldiv_t {
+    pub quot: ::core::ffi::c_longlong,
+    pub rem: ::core::ffi::c_longlong,
+}
+pub type __compar_fn_t = ::core::option::Option<
+    unsafe extern "C" fn(
+        arg1: *const ::core::ffi::c_void,
+        arg2: *const ::core::ffi::c_void,
+    ) -> ::core::ffi::c_int,
+>;
+#[doc = " @brief pin device structure"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct rt_device_pin {
+    pub parent: rt_device,
+    pub ops: *const rt_pin_ops,
+}
+#[doc = " @brief pin mode structure"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct rt_device_pin_mode {
+    pub pin: rt_base_t,
+    pub mode: rt_uint8_t,
+}
+#[doc = " @brief pin value structure"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct rt_device_pin_value {
+    pub pin: rt_base_t,
+    pub value: rt_uint8_t,
+}
+#[doc = " @brief pin irq structure"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct rt_pin_irq_hdr {
+    pub pin: rt_base_t,
+    pub mode: rt_uint8_t,
+    pub hdr: ::core::option::Option<unsafe extern "C" fn(args: *mut ::core::ffi::c_void)>,
+    pub args: *mut ::core::ffi::c_void,
+}
+#[doc = " @brief pin device operations"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct rt_pin_ops {
+    pub pin_mode: ::core::option::Option<
+        unsafe extern "C" fn(device: *mut rt_device, pin: rt_base_t, mode: rt_uint8_t),
+    >,
+    pub pin_write: ::core::option::Option<
+        unsafe extern "C" fn(device: *mut rt_device, pin: rt_base_t, value: rt_uint8_t),
+    >,
+    pub pin_read: ::core::option::Option<
+        unsafe extern "C" fn(device: *mut rt_device, pin: rt_base_t) -> rt_ssize_t,
+    >,
+    pub pin_attach_irq: ::core::option::Option<
+        unsafe extern "C" fn(
+            device: *mut rt_device,
+            pin: rt_base_t,
+            mode: rt_uint8_t,
+            hdr: ::core::option::Option<unsafe extern "C" fn(args: *mut ::core::ffi::c_void)>,
+            args: *mut ::core::ffi::c_void,
+        ) -> rt_err_t,
+    >,
+    pub pin_detach_irq: ::core::option::Option<
+        unsafe extern "C" fn(device: *mut rt_device, pin: rt_base_t) -> rt_err_t,
+    >,
+    pub pin_irq_enable: ::core::option::Option<
+        unsafe extern "C" fn(
+            device: *mut rt_device,
+            pin: rt_base_t,
+            enabled: rt_uint8_t,
+        ) -> rt_err_t,
+    >,
+    pub pin_get:
+        ::core::option::Option<unsafe extern "C" fn(name: *const ::core::ffi::c_char) -> rt_base_t>,
+    pub pin_debounce: ::core::option::Option<
+        unsafe extern "C" fn(
+            device: *mut rt_device,
+            pin: rt_base_t,
+            debounce: rt_uint32_t,
+        ) -> rt_err_t,
+    >,
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct rt_driver {
+    pub parent: rt_object,
+    pub bus: *mut rt_bus,
+    pub node: rt_list_t,
+    pub ref_count: rt_uint32_t,
+    pub init: ::core::option::Option<unsafe extern "C" fn(dev: rt_device_t) -> rt_err_t>,
+    pub open: ::core::option::Option<
+        unsafe extern "C" fn(dev: rt_device_t, oflag: rt_uint16_t) -> rt_err_t,
+    >,
+    pub close: ::core::option::Option<unsafe extern "C" fn(dev: rt_device_t) -> rt_err_t>,
+    pub read: ::core::option::Option<
+        unsafe extern "C" fn(
+            dev: rt_device_t,
+            pos: rt_off_t,
+            buffer: *mut ::core::ffi::c_void,
+            size: rt_size_t,
+        ) -> rt_ssize_t,
+    >,
+    pub write: ::core::option::Option<
+        unsafe extern "C" fn(
+            dev: rt_device_t,
+            pos: rt_off_t,
+            buffer: *const ::core::ffi::c_void,
+            size: rt_size_t,
+        ) -> rt_ssize_t,
+    >,
+    pub control: ::core::option::Option<
+        unsafe extern "C" fn(
+            dev: rt_device_t,
+            cmd: ::core::ffi::c_int,
+            args: *mut ::core::ffi::c_void,
+        ) -> rt_err_t,
+    >,
+    pub fops: *mut filesystem_ops,
+    pub probe:
+        ::core::option::Option<unsafe extern "C" fn(dev: *mut rt_device) -> ::core::ffi::c_int>,
+    pub remove:
+        ::core::option::Option<unsafe extern "C" fn(dev: *mut rt_device) -> ::core::ffi::c_int>,
+    pub shutdown:
+        ::core::option::Option<unsafe extern "C" fn(dev: *mut rt_device) -> ::core::ffi::c_int>,
+}
+#[doc = " @brief SPI message structure"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct rt_spi_message {
+    pub send_buf: *const ::core::ffi::c_void,
+    pub recv_buf: *mut ::core::ffi::c_void,
+    pub length: rt_size_t,
+    pub next: *mut rt_spi_message,
+    pub _bitfield_align_1: [u8; 0],
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 1usize]>,
+    pub __bindgen_padding_0: [u8; 7usize],
+}
+impl rt_spi_message {
+    #[inline]
+    pub fn cs_take(&self) -> ::core::ffi::c_uint {
+        unsafe { ::core::mem::transmute(self._bitfield_1.get(0usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_cs_take(&mut self, val: ::core::ffi::c_uint) {
+        unsafe {
+            let val: u32 = ::core::mem::transmute(val);
+            self._bitfield_1.set(0usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn cs_take_raw(this: *const Self) -> ::core::ffi::c_uint {
+        unsafe {
+            ::core::mem::transmute(<__BindgenBitfieldUnit<[u8; 1usize]>>::raw_get(
+                ::core::ptr::addr_of!((*this)._bitfield_1),
+                0usize,
+                1u8,
+            ) as u32)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_cs_take_raw(this: *mut Self, val: ::core::ffi::c_uint) {
+        unsafe {
+            let val: u32 = ::core::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 1usize]>>::raw_set(
+                ::core::ptr::addr_of_mut!((*this)._bitfield_1),
+                0usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn cs_release(&self) -> ::core::ffi::c_uint {
+        unsafe { ::core::mem::transmute(self._bitfield_1.get(1usize, 1u8) as u32) }
+    }
+    #[inline]
+    pub fn set_cs_release(&mut self, val: ::core::ffi::c_uint) {
+        unsafe {
+            let val: u32 = ::core::mem::transmute(val);
+            self._bitfield_1.set(1usize, 1u8, val as u64)
+        }
+    }
+    #[inline]
+    pub unsafe fn cs_release_raw(this: *const Self) -> ::core::ffi::c_uint {
+        unsafe {
+            ::core::mem::transmute(<__BindgenBitfieldUnit<[u8; 1usize]>>::raw_get(
+                ::core::ptr::addr_of!((*this)._bitfield_1),
+                1usize,
+                1u8,
+            ) as u32)
+        }
+    }
+    #[inline]
+    pub unsafe fn set_cs_release_raw(this: *mut Self, val: ::core::ffi::c_uint) {
+        unsafe {
+            let val: u32 = ::core::mem::transmute(val);
+            <__BindgenBitfieldUnit<[u8; 1usize]>>::raw_set(
+                ::core::ptr::addr_of_mut!((*this)._bitfield_1),
+                1usize,
+                1u8,
+                val as u64,
+            )
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        cs_take: ::core::ffi::c_uint,
+        cs_release: ::core::ffi::c_uint,
+    ) -> __BindgenBitfieldUnit<[u8; 1usize]> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 1usize]> = Default::default();
+        __bindgen_bitfield_unit.set(0usize, 1u8, {
+            let cs_take: u32 = unsafe { ::core::mem::transmute(cs_take) };
+            cs_take as u64
+        });
+        __bindgen_bitfield_unit.set(1usize, 1u8, {
+            let cs_release: u32 = unsafe { ::core::mem::transmute(cs_release) };
+            cs_release as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[doc = " @brief SPI configuration structure"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct rt_spi_configuration {
+    pub mode: rt_uint8_t,
+    pub data_width: rt_uint8_t,
+    pub reserved: rt_uint16_t,
+    pub max_hz: rt_uint32_t,
+}
+#[doc = " @brief SPI bus structure"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct rt_spi_bus {
+    pub parent: rt_device,
+    pub mode: rt_uint8_t,
+    pub ops: *const rt_spi_ops,
+    pub lock: rt_mutex,
+    pub owner: *mut rt_spi_device,
+}
+#[doc = " @brief SPI operators"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct rt_spi_ops {
+    pub configure: ::core::option::Option<
+        unsafe extern "C" fn(
+            device: *mut rt_spi_device,
+            configuration: *mut rt_spi_configuration,
+        ) -> rt_err_t,
+    >,
+    pub xfer: ::core::option::Option<
+        unsafe extern "C" fn(
+            device: *mut rt_spi_device,
+            message: *mut rt_spi_message,
+        ) -> rt_ssize_t,
+    >,
+}
+#[doc = " @brief SPI Virtual BUS, one device must connected to a virtual BUS"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct rt_spi_device {
+    pub parent: rt_device,
+    pub bus: *mut rt_spi_bus,
+    pub config: rt_spi_configuration,
+    pub cs_pin: rt_base_t,
+    pub user_data: *mut ::core::ffi::c_void,
+}
+#[doc = " @brief QSPI message structure"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct rt_qspi_message {
+    pub parent: rt_spi_message,
+    pub instruction: rt_qspi_message__bindgen_ty_1,
+    pub address: rt_qspi_message__bindgen_ty_2,
+    pub alternate_bytes: rt_qspi_message__bindgen_ty_2,
+    pub dummy_cycles: rt_uint32_t,
+    pub qspi_data_lines: rt_uint8_t,
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct rt_qspi_message__bindgen_ty_1 {
+    pub content: rt_uint8_t,
+    pub qspi_lines: rt_uint8_t,
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct rt_qspi_message__bindgen_ty_2 {
+    pub content: rt_uint32_t,
+    pub size: rt_uint8_t,
+    pub qspi_lines: rt_uint8_t,
+}
+#[doc = " @brief QSPI configuration structure"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct rt_qspi_configuration {
+    pub parent: rt_spi_configuration,
+    pub medium_size: rt_uint32_t,
+    pub ddr_mode: rt_uint8_t,
+    pub qspi_dl_width: rt_uint8_t,
+}
+#[doc = " @brief QSPI operators"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct rt_qspi_device {
+    pub parent: rt_spi_device,
+    pub config: rt_qspi_configuration,
+    pub enter_qspi_mode: ::core::option::Option<unsafe extern "C" fn(device: *mut rt_qspi_device)>,
+    pub exit_qspi_mode: ::core::option::Option<unsafe extern "C" fn(device: *mut rt_qspi_device)>,
+}
 pub type __builtin_va_list = [__va_list_tag; 1usize];
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -1584,6 +1939,16 @@ pub struct __va_list_tag {
     pub fp_offset: ::core::ffi::c_uint,
     pub overflow_arg_area: *mut ::core::ffi::c_void,
     pub reg_save_area: *mut ::core::ffi::c_void,
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct rt_bus {
+    pub _address: u8,
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct filesystem_ops {
+    pub _address: u8,
 }
 unsafe extern "C" {
     pub fn select(
@@ -2401,4 +2766,483 @@ unsafe extern "C" {
         func: *const ::core::ffi::c_char,
         line: rt_size_t,
     );
+    pub fn __locale_mb_cur_max() -> ::core::ffi::c_int;
+    pub fn abort() -> !;
+    pub fn abs(arg1: ::core::ffi::c_int) -> ::core::ffi::c_int;
+    pub fn arc4random() -> __uint32_t;
+    pub fn arc4random_uniform(arg1: __uint32_t) -> __uint32_t;
+    pub fn arc4random_buf(arg1: *mut ::core::ffi::c_void, arg2: usize);
+    pub fn atexit(__func: ::core::option::Option<unsafe extern "C" fn()>) -> ::core::ffi::c_int;
+    pub fn atof(__nptr: *const ::core::ffi::c_char) -> f64;
+    pub fn atoff(__nptr: *const ::core::ffi::c_char) -> f32;
+    pub fn atoi(__nptr: *const ::core::ffi::c_char) -> ::core::ffi::c_int;
+    pub fn _atoi_r(arg1: *mut _reent, __nptr: *const ::core::ffi::c_char) -> ::core::ffi::c_int;
+    pub fn atol(__nptr: *const ::core::ffi::c_char) -> ::core::ffi::c_long;
+    pub fn _atol_r(arg1: *mut _reent, __nptr: *const ::core::ffi::c_char) -> ::core::ffi::c_long;
+    pub fn bsearch(
+        __key: *const ::core::ffi::c_void,
+        __base: *const ::core::ffi::c_void,
+        __nmemb: usize,
+        __size: usize,
+        _compar: __compar_fn_t,
+    ) -> *mut ::core::ffi::c_void;
+    pub fn calloc(
+        arg1: ::core::ffi::c_ulong,
+        arg2: ::core::ffi::c_ulong,
+    ) -> *mut ::core::ffi::c_void;
+    pub fn div(__numer: ::core::ffi::c_int, __denom: ::core::ffi::c_int) -> div_t;
+    pub fn exit(__status: ::core::ffi::c_int) -> !;
+    pub fn free(arg1: *mut ::core::ffi::c_void);
+    pub fn getenv(__string: *const ::core::ffi::c_char) -> *mut ::core::ffi::c_char;
+    pub fn _getenv_r(
+        arg1: *mut _reent,
+        __string: *const ::core::ffi::c_char,
+    ) -> *mut ::core::ffi::c_char;
+    pub fn _findenv(
+        arg1: *const ::core::ffi::c_char,
+        arg2: *mut ::core::ffi::c_int,
+    ) -> *mut ::core::ffi::c_char;
+    pub fn _findenv_r(
+        arg1: *mut _reent,
+        arg2: *const ::core::ffi::c_char,
+        arg3: *mut ::core::ffi::c_int,
+    ) -> *mut ::core::ffi::c_char;
+    pub static mut suboptarg: *mut ::core::ffi::c_char;
+    pub fn getsubopt(
+        arg1: *mut *mut ::core::ffi::c_char,
+        arg2: *const *mut ::core::ffi::c_char,
+        arg3: *mut *mut ::core::ffi::c_char,
+    ) -> ::core::ffi::c_int;
+    pub fn labs(arg1: ::core::ffi::c_long) -> ::core::ffi::c_long;
+    pub fn ldiv(__numer: ::core::ffi::c_long, __denom: ::core::ffi::c_long) -> ldiv_t;
+    pub fn malloc(arg1: ::core::ffi::c_ulong) -> *mut ::core::ffi::c_void;
+    pub fn mblen(arg1: *const ::core::ffi::c_char, arg2: usize) -> ::core::ffi::c_int;
+    pub fn _mblen_r(
+        arg1: *mut _reent,
+        arg2: *const ::core::ffi::c_char,
+        arg3: usize,
+        arg4: *mut _mbstate_t,
+    ) -> ::core::ffi::c_int;
+    pub fn mbtowc(
+        arg1: *mut wchar_t,
+        arg2: *const ::core::ffi::c_char,
+        arg3: usize,
+    ) -> ::core::ffi::c_int;
+    pub fn _mbtowc_r(
+        arg1: *mut _reent,
+        arg2: *mut wchar_t,
+        arg3: *const ::core::ffi::c_char,
+        arg4: usize,
+        arg5: *mut _mbstate_t,
+    ) -> ::core::ffi::c_int;
+    pub fn wctomb(arg1: *mut ::core::ffi::c_char, arg2: wchar_t) -> ::core::ffi::c_int;
+    pub fn _wctomb_r(
+        arg1: *mut _reent,
+        arg2: *mut ::core::ffi::c_char,
+        arg3: wchar_t,
+        arg4: *mut _mbstate_t,
+    ) -> ::core::ffi::c_int;
+    pub fn mbstowcs(arg1: *mut wchar_t, arg2: *const ::core::ffi::c_char, arg3: usize) -> usize;
+    pub fn _mbstowcs_r(
+        arg1: *mut _reent,
+        arg2: *mut wchar_t,
+        arg3: *const ::core::ffi::c_char,
+        arg4: usize,
+        arg5: *mut _mbstate_t,
+    ) -> usize;
+    pub fn wcstombs(arg1: *mut ::core::ffi::c_char, arg2: *const wchar_t, arg3: usize) -> usize;
+    pub fn _wcstombs_r(
+        arg1: *mut _reent,
+        arg2: *mut ::core::ffi::c_char,
+        arg3: *const wchar_t,
+        arg4: usize,
+        arg5: *mut _mbstate_t,
+    ) -> usize;
+    pub fn mkdtemp(arg1: *mut ::core::ffi::c_char) -> *mut ::core::ffi::c_char;
+    pub fn mkstemp(arg1: *mut ::core::ffi::c_char) -> ::core::ffi::c_int;
+    pub fn mkstemps(arg1: *mut ::core::ffi::c_char, arg2: ::core::ffi::c_int)
+        -> ::core::ffi::c_int;
+    pub fn mktemp(arg1: *mut ::core::ffi::c_char) -> *mut ::core::ffi::c_char;
+    pub fn _mkdtemp_r(
+        arg1: *mut _reent,
+        arg2: *mut ::core::ffi::c_char,
+    ) -> *mut ::core::ffi::c_char;
+    pub fn _mkostemp_r(
+        arg1: *mut _reent,
+        arg2: *mut ::core::ffi::c_char,
+        arg3: ::core::ffi::c_int,
+    ) -> ::core::ffi::c_int;
+    pub fn _mkostemps_r(
+        arg1: *mut _reent,
+        arg2: *mut ::core::ffi::c_char,
+        arg3: ::core::ffi::c_int,
+        arg4: ::core::ffi::c_int,
+    ) -> ::core::ffi::c_int;
+    pub fn _mkstemp_r(arg1: *mut _reent, arg2: *mut ::core::ffi::c_char) -> ::core::ffi::c_int;
+    pub fn _mkstemps_r(
+        arg1: *mut _reent,
+        arg2: *mut ::core::ffi::c_char,
+        arg3: ::core::ffi::c_int,
+    ) -> ::core::ffi::c_int;
+    pub fn _mktemp_r(arg1: *mut _reent, arg2: *mut ::core::ffi::c_char)
+        -> *mut ::core::ffi::c_char;
+    pub fn qsort(
+        __base: *mut ::core::ffi::c_void,
+        __nmemb: usize,
+        __size: usize,
+        _compar: __compar_fn_t,
+    );
+    pub fn rand() -> ::core::ffi::c_int;
+    pub fn realloc(
+        arg1: *mut ::core::ffi::c_void,
+        arg2: ::core::ffi::c_ulong,
+    ) -> *mut ::core::ffi::c_void;
+    pub fn reallocarray(
+        arg1: *mut ::core::ffi::c_void,
+        arg2: usize,
+        arg3: usize,
+    ) -> *mut ::core::ffi::c_void;
+    pub fn reallocf(arg1: *mut ::core::ffi::c_void, arg2: usize) -> *mut ::core::ffi::c_void;
+    pub fn realpath(
+        path: *const ::core::ffi::c_char,
+        resolved_path: *mut ::core::ffi::c_char,
+    ) -> *mut ::core::ffi::c_char;
+    pub fn rpmatch(response: *const ::core::ffi::c_char) -> ::core::ffi::c_int;
+    pub fn srand(__seed: ::core::ffi::c_uint);
+    pub fn strtod(__n: *const ::core::ffi::c_char, __end_PTR: *mut *mut ::core::ffi::c_char)
+        -> f64;
+    pub fn _strtod_r(
+        arg1: *mut _reent,
+        __n: *const ::core::ffi::c_char,
+        __end_PTR: *mut *mut ::core::ffi::c_char,
+    ) -> f64;
+    pub fn strtof(__n: *const ::core::ffi::c_char, __end_PTR: *mut *mut ::core::ffi::c_char)
+        -> f32;
+    pub fn strtol(
+        __n: *const ::core::ffi::c_char,
+        __end_PTR: *mut *mut ::core::ffi::c_char,
+        __base: ::core::ffi::c_int,
+    ) -> ::core::ffi::c_long;
+    pub fn _strtol_r(
+        arg1: *mut _reent,
+        __n: *const ::core::ffi::c_char,
+        __end_PTR: *mut *mut ::core::ffi::c_char,
+        __base: ::core::ffi::c_int,
+    ) -> ::core::ffi::c_long;
+    pub fn strtoul(
+        __n: *const ::core::ffi::c_char,
+        __end_PTR: *mut *mut ::core::ffi::c_char,
+        __base: ::core::ffi::c_int,
+    ) -> ::core::ffi::c_ulong;
+    pub fn _strtoul_r(
+        arg1: *mut _reent,
+        __n: *const ::core::ffi::c_char,
+        __end_PTR: *mut *mut ::core::ffi::c_char,
+        __base: ::core::ffi::c_int,
+    ) -> ::core::ffi::c_ulong;
+    pub fn system(__string: *const ::core::ffi::c_char) -> ::core::ffi::c_int;
+    pub fn a64l(__input: *const ::core::ffi::c_char) -> ::core::ffi::c_long;
+    pub fn l64a(__input: ::core::ffi::c_long) -> *mut ::core::ffi::c_char;
+    pub fn _l64a_r(arg1: *mut _reent, __input: ::core::ffi::c_long) -> *mut ::core::ffi::c_char;
+    pub fn on_exit(
+        __func: ::core::option::Option<
+            unsafe extern "C" fn(arg1: ::core::ffi::c_int, arg2: *mut ::core::ffi::c_void),
+        >,
+        __arg: *mut ::core::ffi::c_void,
+    ) -> ::core::ffi::c_int;
+    pub fn _Exit(__status: ::core::ffi::c_int) -> !;
+    pub fn putenv(__string: *mut ::core::ffi::c_char) -> ::core::ffi::c_int;
+    pub fn _putenv_r(arg1: *mut _reent, __string: *mut ::core::ffi::c_char) -> ::core::ffi::c_int;
+    pub fn _reallocf_r(
+        arg1: *mut _reent,
+        arg2: *mut ::core::ffi::c_void,
+        arg3: usize,
+    ) -> *mut ::core::ffi::c_void;
+    pub fn setenv(
+        __string: *const ::core::ffi::c_char,
+        __value: *const ::core::ffi::c_char,
+        __overwrite: ::core::ffi::c_int,
+    ) -> ::core::ffi::c_int;
+    pub fn _setenv_r(
+        arg1: *mut _reent,
+        __string: *const ::core::ffi::c_char,
+        __value: *const ::core::ffi::c_char,
+        __overwrite: ::core::ffi::c_int,
+    ) -> ::core::ffi::c_int;
+    pub fn __itoa(
+        arg1: ::core::ffi::c_int,
+        arg2: *mut ::core::ffi::c_char,
+        arg3: ::core::ffi::c_int,
+    ) -> *mut ::core::ffi::c_char;
+    pub fn __utoa(
+        arg1: ::core::ffi::c_uint,
+        arg2: *mut ::core::ffi::c_char,
+        arg3: ::core::ffi::c_int,
+    ) -> *mut ::core::ffi::c_char;
+    pub fn itoa(
+        arg1: ::core::ffi::c_int,
+        arg2: *mut ::core::ffi::c_char,
+        arg3: ::core::ffi::c_int,
+    ) -> *mut ::core::ffi::c_char;
+    pub fn utoa(
+        arg1: ::core::ffi::c_uint,
+        arg2: *mut ::core::ffi::c_char,
+        arg3: ::core::ffi::c_int,
+    ) -> *mut ::core::ffi::c_char;
+    pub fn rand_r(__seed: *mut ::core::ffi::c_uint) -> ::core::ffi::c_int;
+    pub fn drand48() -> f64;
+    pub fn _drand48_r(arg1: *mut _reent) -> f64;
+    pub fn erand48(arg1: *mut ::core::ffi::c_ushort) -> f64;
+    pub fn _erand48_r(arg1: *mut _reent, arg2: *mut ::core::ffi::c_ushort) -> f64;
+    pub fn jrand48(arg1: *mut ::core::ffi::c_ushort) -> ::core::ffi::c_long;
+    pub fn _jrand48_r(arg1: *mut _reent, arg2: *mut ::core::ffi::c_ushort) -> ::core::ffi::c_long;
+    pub fn lcong48(arg1: *mut ::core::ffi::c_ushort);
+    pub fn _lcong48_r(arg1: *mut _reent, arg2: *mut ::core::ffi::c_ushort);
+    pub fn lrand48() -> ::core::ffi::c_long;
+    pub fn _lrand48_r(arg1: *mut _reent) -> ::core::ffi::c_long;
+    pub fn mrand48() -> ::core::ffi::c_long;
+    pub fn _mrand48_r(arg1: *mut _reent) -> ::core::ffi::c_long;
+    pub fn nrand48(arg1: *mut ::core::ffi::c_ushort) -> ::core::ffi::c_long;
+    pub fn _nrand48_r(arg1: *mut _reent, arg2: *mut ::core::ffi::c_ushort) -> ::core::ffi::c_long;
+    pub fn seed48(arg1: *mut ::core::ffi::c_ushort) -> *mut ::core::ffi::c_ushort;
+    pub fn _seed48_r(
+        arg1: *mut _reent,
+        arg2: *mut ::core::ffi::c_ushort,
+    ) -> *mut ::core::ffi::c_ushort;
+    pub fn srand48(arg1: ::core::ffi::c_long);
+    pub fn _srand48_r(arg1: *mut _reent, arg2: ::core::ffi::c_long);
+    pub fn initstate(
+        arg1: ::core::ffi::c_uint,
+        arg2: *mut ::core::ffi::c_char,
+        arg3: usize,
+    ) -> *mut ::core::ffi::c_char;
+    pub fn random() -> ::core::ffi::c_long;
+    pub fn setstate(arg1: *mut ::core::ffi::c_char) -> *mut ::core::ffi::c_char;
+    pub fn srandom(arg1: ::core::ffi::c_uint);
+    pub fn atoll(__nptr: *const ::core::ffi::c_char) -> ::core::ffi::c_longlong;
+    pub fn _atoll_r(
+        arg1: *mut _reent,
+        __nptr: *const ::core::ffi::c_char,
+    ) -> ::core::ffi::c_longlong;
+    pub fn llabs(arg1: ::core::ffi::c_longlong) -> ::core::ffi::c_longlong;
+    pub fn lldiv(__numer: ::core::ffi::c_longlong, __denom: ::core::ffi::c_longlong) -> lldiv_t;
+    pub fn strtoll(
+        __n: *const ::core::ffi::c_char,
+        __end_PTR: *mut *mut ::core::ffi::c_char,
+        __base: ::core::ffi::c_int,
+    ) -> ::core::ffi::c_longlong;
+    pub fn _strtoll_r(
+        arg1: *mut _reent,
+        __n: *const ::core::ffi::c_char,
+        __end_PTR: *mut *mut ::core::ffi::c_char,
+        __base: ::core::ffi::c_int,
+    ) -> ::core::ffi::c_longlong;
+    pub fn strtoull(
+        __n: *const ::core::ffi::c_char,
+        __end_PTR: *mut *mut ::core::ffi::c_char,
+        __base: ::core::ffi::c_int,
+    ) -> ::core::ffi::c_ulonglong;
+    pub fn _strtoull_r(
+        arg1: *mut _reent,
+        __n: *const ::core::ffi::c_char,
+        __end_PTR: *mut *mut ::core::ffi::c_char,
+        __base: ::core::ffi::c_int,
+    ) -> ::core::ffi::c_ulonglong;
+    pub fn cfree(arg1: *mut ::core::ffi::c_void);
+    pub fn unsetenv(__string: *const ::core::ffi::c_char) -> ::core::ffi::c_int;
+    pub fn _unsetenv_r(
+        arg1: *mut _reent,
+        __string: *const ::core::ffi::c_char,
+    ) -> ::core::ffi::c_int;
+    pub fn posix_memalign(
+        arg1: *mut *mut ::core::ffi::c_void,
+        arg2: usize,
+        arg3: usize,
+    ) -> ::core::ffi::c_int;
+    pub fn _dtoa_r(
+        arg1: *mut _reent,
+        arg2: f64,
+        arg3: ::core::ffi::c_int,
+        arg4: ::core::ffi::c_int,
+        arg5: *mut ::core::ffi::c_int,
+        arg6: *mut ::core::ffi::c_int,
+        arg7: *mut *mut ::core::ffi::c_char,
+    ) -> *mut ::core::ffi::c_char;
+    pub fn _malloc_r(arg1: *mut _reent, arg2: usize) -> *mut ::core::ffi::c_void;
+    pub fn _calloc_r(arg1: *mut _reent, arg2: usize, arg3: usize) -> *mut ::core::ffi::c_void;
+    pub fn _free_r(arg1: *mut _reent, arg2: *mut ::core::ffi::c_void);
+    pub fn _realloc_r(
+        arg1: *mut _reent,
+        arg2: *mut ::core::ffi::c_void,
+        arg3: usize,
+    ) -> *mut ::core::ffi::c_void;
+    pub fn _mstats_r(arg1: *mut _reent, arg2: *mut ::core::ffi::c_char);
+    pub fn _system_r(arg1: *mut _reent, arg2: *const ::core::ffi::c_char) -> ::core::ffi::c_int;
+    pub fn __eprintf(
+        arg1: *const ::core::ffi::c_char,
+        arg2: *const ::core::ffi::c_char,
+        arg3: ::core::ffi::c_uint,
+        arg4: *const ::core::ffi::c_char,
+    );
+    #[link_name = "\u{1}___bsd_qsort_r"]
+    pub fn qsort_r(
+        __base: *mut ::core::ffi::c_void,
+        __nmemb: usize,
+        __size: usize,
+        __thunk: *mut ::core::ffi::c_void,
+        _compar: ::core::option::Option<
+            unsafe extern "C" fn(
+                arg1: *mut ::core::ffi::c_void,
+                arg2: *const ::core::ffi::c_void,
+                arg3: *const ::core::ffi::c_void,
+            ) -> ::core::ffi::c_int,
+        >,
+    );
+    pub fn _strtold_r(
+        arg1: *mut _reent,
+        arg2: *const ::core::ffi::c_char,
+        arg3: *mut *mut ::core::ffi::c_char,
+    ) -> u128;
+    pub fn strtold(arg1: *const ::core::ffi::c_char, arg2: *mut *mut ::core::ffi::c_char) -> u128;
+    pub fn aligned_alloc(
+        arg1: ::core::ffi::c_ulong,
+        arg2: ::core::ffi::c_ulong,
+    ) -> *mut ::core::ffi::c_void;
+    pub fn at_quick_exit(
+        arg1: ::core::option::Option<unsafe extern "C" fn()>,
+    ) -> ::core::ffi::c_int;
+    pub fn quick_exit(arg1: ::core::ffi::c_int);
+    #[doc = " @brief register a pin device\n @param name the name of pin device\n @param ops the operations of pin device\n @param user_data the user data of pin device\n @return int error code"]
+    pub fn rt_device_pin_register(
+        name: *const ::core::ffi::c_char,
+        ops: *const rt_pin_ops,
+        user_data: *mut ::core::ffi::c_void,
+    ) -> ::core::ffi::c_int;
+    #[doc = " @brief set pin mode\n @param pin the pin number\n @param mode the pin mode"]
+    pub fn rt_pin_mode(pin: rt_base_t, mode: rt_uint8_t);
+    #[doc = " @brief write pin value\n @param pin the pin number\n @param value the pin value"]
+    pub fn rt_pin_write(pin: rt_base_t, value: rt_ssize_t);
+    #[doc = " @brief read pin value\n @param pin the pin number\n @return rt_ssize_t the pin value"]
+    pub fn rt_pin_read(pin: rt_base_t) -> rt_ssize_t;
+    #[doc = " @brief get pin number by name\n @param name the pin name\n @return rt_base_t the pin number"]
+    pub fn rt_pin_get(name: *const ::core::ffi::c_char) -> rt_base_t;
+    #[doc = " @brief bind the pin interrupt callback function\n @param pin the pin number\n @param mode the irq mode\n @param hdr the irq callback function\n @param args the argument of the callback function\n @return rt_err_t error code"]
+    pub fn rt_pin_attach_irq(
+        pin: rt_base_t,
+        mode: rt_uint8_t,
+        hdr: ::core::option::Option<unsafe extern "C" fn(args: *mut ::core::ffi::c_void)>,
+        args: *mut ::core::ffi::c_void,
+    ) -> rt_err_t;
+    #[doc = " @brief detach the pin interrupt callback function\n @param pin the pin number\n @return rt_err_t error code"]
+    pub fn rt_pin_detach_irq(pin: rt_base_t) -> rt_err_t;
+    #[doc = " @brief enable or disable the pin interrupt\n @param pin the pin number\n @param enabled PIN_IRQ_ENABLE or PIN_IRQ_DISABLE\n @return rt_err_t error code"]
+    pub fn rt_pin_irq_enable(pin: rt_base_t, enabled: rt_uint8_t) -> rt_err_t;
+    #[doc = " @brief set the pin's debounce time\n @param pin the pin number\n @param debounce time\n @return rt_err_t error code"]
+    pub fn rt_pin_debounce(pin: rt_base_t, debounce: rt_uint32_t) -> rt_err_t;
+    pub fn rt_driver_register(drv: rt_driver_t) -> rt_err_t;
+    pub fn rt_driver_unregister(drv: rt_driver_t) -> rt_err_t;
+    #[doc = " @brief register a SPI bus\n\n @param bus the SPI bus\n @param name the name of SPI bus\n @param ops the operations of SPI bus\n\n @return rt_err_t error code"]
+    pub fn rt_spi_bus_register(
+        bus: *mut rt_spi_bus,
+        name: *const ::core::ffi::c_char,
+        ops: *const rt_spi_ops,
+    ) -> rt_err_t;
+    #[doc = " @brief attach a device on SPI bus\n\n @param device the SPI device\n @param name the name of SPI device\n @param bus_name the name of SPI bus\n @param user_data the user data of SPI device\n\n @return rt_err_t error code"]
+    pub fn rt_spi_bus_attach_device(
+        device: *mut rt_spi_device,
+        name: *const ::core::ffi::c_char,
+        bus_name: *const ::core::ffi::c_char,
+        user_data: *mut ::core::ffi::c_void,
+    ) -> rt_err_t;
+    #[doc = " @brief attach a device on SPI bus with CS pin\n\n @param device the SPI device\n @param name the name of SPI device\n @param bus_name the name of SPI bus\n @param cs_pin the CS pin of SPI device\n @param user_data the user data of SPI device\n\n @return rt_err_t error code"]
+    pub fn rt_spi_bus_attach_device_cspin(
+        device: *mut rt_spi_device,
+        name: *const ::core::ffi::c_char,
+        bus_name: *const ::core::ffi::c_char,
+        cs_pin: rt_base_t,
+        user_data: *mut ::core::ffi::c_void,
+    ) -> rt_err_t;
+    #[doc = " @brief  Reconfigure the SPI bus for the specified device.\n\n @param  device: Pointer to the SPI device attached to the SPI bus.\n @retval RT_EOK if the SPI device was successfully released and the bus was configured.\n         RT_EBUSY if the SPI bus is currently in use; the new configuration will take effect once the device releases the bus.\n         Other return values indicate failure to configure the SPI bus due to various reasons.\n @note   If the configuration of the SPI device has been updated and requires bus re-initialization,\n         call this function directly. This function will reconfigure the SPI bus for the specified device.\n         If this is the first time to initialize the SPI device, please call rt_spi_configure or rt_qspi_configure.\n         This function is used to reconfigure the SPI bus when the SPI device is already in use.\n         For further details, refer to:\n         https://github.com/RT-Thread/rt-thread/pull/8528"]
+    pub fn rt_spi_bus_configure(device: *mut rt_spi_device) -> rt_err_t;
+    #[doc = " @brief This function takes SPI bus.\n\n @param device the SPI device attached to SPI bus\n\n @return RT_EOK on taken SPI bus successfully. others on taken SPI bus failed."]
+    pub fn rt_spi_take_bus(device: *mut rt_spi_device) -> rt_err_t;
+    #[doc = " @brief This function releases SPI bus.\n\n @param device the SPI device attached to SPI bus\n\n @return RT_EOK on release SPI bus successfully."]
+    pub fn rt_spi_release_bus(device: *mut rt_spi_device) -> rt_err_t;
+    #[doc = " @brief This function take SPI device (takes CS of SPI device).\n\n @param device the SPI device attached to SPI bus\n\n @return RT_EOK on release SPI bus successfully. others on taken SPI bus failed."]
+    pub fn rt_spi_take(device: *mut rt_spi_device) -> rt_err_t;
+    #[doc = " @brief This function releases SPI device (releases CS of SPI device).\n\n @param device the SPI device attached to SPI bus\n\n @return RT_EOK on release SPI device successfully."]
+    pub fn rt_spi_release(device: *mut rt_spi_device) -> rt_err_t;
+    #[doc = " @brief  This function can set configuration on SPI device.\n\n @param  device: the SPI device attached to SPI bus\n @param  cfg: the configuration pointer.\n\n @retval RT_EOK on release SPI device successfully.\n         RT_EBUSY is not an error condition and the configuration will take effect once the device has the bus\n         others on taken SPI bus failed."]
+    pub fn rt_spi_configure(device: *mut rt_spi_device, cfg: *mut rt_spi_configuration)
+        -> rt_err_t;
+    #[doc = " @brief This function can send data then receive data from SPI device.\n\n @param device the SPI device attached to SPI bus\n @param send_buf the buffer to be transmitted to SPI device.\n @param send_length the number of data to be transmitted.\n @param recv_buf the buffer to be recivied from SPI device.\n @param recv_length the data to be recivied.\n\n @return rt_err_t error code"]
+    pub fn rt_spi_send_then_recv(
+        device: *mut rt_spi_device,
+        send_buf: *const ::core::ffi::c_void,
+        send_length: rt_size_t,
+        recv_buf: *mut ::core::ffi::c_void,
+        recv_length: rt_size_t,
+    ) -> rt_err_t;
+    #[doc = " @brief This function can send data then send data from SPI device.\n\n @param device the SPI device attached to SPI bus\n @param send_buf1 the buffer to be transmitted to SPI device.\n @param send_length1 the number of data to be transmitted.\n @param send_buf2 the buffer to be transmitted to SPI device.\n @param send_length2 the number of data to be transmitted.\n\n @return the status of transmit."]
+    pub fn rt_spi_send_then_send(
+        device: *mut rt_spi_device,
+        send_buf1: *const ::core::ffi::c_void,
+        send_length1: rt_size_t,
+        send_buf2: *const ::core::ffi::c_void,
+        send_length2: rt_size_t,
+    ) -> rt_err_t;
+    #[doc = " @brief This function transmits data to SPI device.\n\n @param device the SPI device attached to SPI bus\n @param send_buf the buffer to be transmitted to SPI device.\n @param recv_buf the buffer to save received data from SPI device.\n @param length the length of transmitted data.\n\n @return the actual length of transmitted."]
+    pub fn rt_spi_transfer(
+        device: *mut rt_spi_device,
+        send_buf: *const ::core::ffi::c_void,
+        recv_buf: *mut ::core::ffi::c_void,
+        length: rt_size_t,
+    ) -> rt_ssize_t;
+    #[doc = " @brief The SPI device transmits 8 bytes of data\n\n @param device the SPI device attached to SPI bus\n @param senddata send data buffer\n @param recvdata receive data buffer\n\n @return rt_err_t error code"]
+    pub fn rt_spi_sendrecv8(
+        device: *mut rt_spi_device,
+        senddata: rt_uint8_t,
+        recvdata: *mut rt_uint8_t,
+    ) -> rt_err_t;
+    #[doc = " @brief The SPI device transmits 16 bytes of data\n\n @param device the SPI device attached to SPI bus\n @param senddata send data buffer\n @param recvdata receive data buffer\n\n @return rt_err_t error code"]
+    pub fn rt_spi_sendrecv16(
+        device: *mut rt_spi_device,
+        senddata: rt_uint16_t,
+        recvdata: *mut rt_uint16_t,
+    ) -> rt_err_t;
+    #[doc = " @brief This function transfers a message list to the SPI device.\n\n @param device the SPI device attached to SPI bus\n @param message the message list to be transmitted to SPI device\n\n @return RT_NULL if transmits message list successfully,\n         SPI message which be transmitted failed."]
+    pub fn rt_spi_transfer_message(
+        device: *mut rt_spi_device,
+        message: *mut rt_spi_message,
+    ) -> *mut rt_spi_message;
+    #[doc = " @brief This function can set configuration on QSPI device.\n\n @param device the QSPI device attached to QSPI bus.\n @param cfg the configuration pointer.\n\n @return the actual length of transmitted."]
+    pub fn rt_qspi_configure(
+        device: *mut rt_qspi_device,
+        cfg: *mut rt_qspi_configuration,
+    ) -> rt_err_t;
+    #[doc = " @brief This function can register a SPI bus for QSPI mode.\n\n @param bus the SPI bus for QSPI mode.\n @param name The name of the spi bus.\n @param ops the SPI bus instance to be registered.\n\n @return the actual length of transmitted."]
+    pub fn rt_qspi_bus_register(
+        bus: *mut rt_spi_bus,
+        name: *const ::core::ffi::c_char,
+        ops: *const rt_spi_ops,
+    ) -> rt_err_t;
+    #[doc = " @brief This function transmits data to QSPI device.\n\n @param device the QSPI device attached to QSPI bus.\n @param message the message pointer.\n\n @return the actual length of transmitted."]
+    pub fn rt_qspi_transfer_message(
+        device: *mut rt_qspi_device,
+        message: *mut rt_qspi_message,
+    ) -> rt_size_t;
+    #[doc = " @brief This function can send data then receive data from QSPI device\n\n @param device the QSPI device attached to QSPI bus.\n @param send_buf the buffer to be transmitted to QSPI device.\n @param send_length the number of data to be transmitted.\n @param recv_buf the buffer to be recivied from QSPI device.\n @param recv_length the data to be recivied.\n\n @return the status of transmit."]
+    pub fn rt_qspi_send_then_recv(
+        device: *mut rt_qspi_device,
+        send_buf: *const ::core::ffi::c_void,
+        send_length: rt_size_t,
+        recv_buf: *mut ::core::ffi::c_void,
+        recv_length: rt_size_t,
+    ) -> rt_err_t;
+    #[doc = " @brief This function can send data to QSPI device\n\n @param device the QSPI device attached to QSPI bus.\n @param send_buf the buffer to be transmitted to QSPI device.\n @param length the number of data to be transmitted.\n\n @return the status of transmit."]
+    pub fn rt_qspi_send(
+        device: *mut rt_qspi_device,
+        send_buf: *const ::core::ffi::c_void,
+        length: rt_size_t,
+    ) -> rt_err_t;
 }
