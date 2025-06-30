@@ -2,6 +2,7 @@
 use crate::ffi::RT_NAME_MAX;
 
 use core::ffi::c_char;
+use core::fmt::{Display, Formatter, Result as FmtResult};
 use core::str::from_utf8_unchecked;
 
 #[allow(non_camel_case_types)]
@@ -47,7 +48,7 @@ impl Into<c_str> for RtName {
     fn into(self) -> c_str {
         /*
         as 与 cast 写法在此处均正确，但 .cast() 是更现代、更推荐的方式，因为：
-        明确表达“指针类型转换”的意图。
+        明确表达"指针类型转换"的意图。
         在泛型或复杂类型场景中更易维护。
         与 Rust 标准库的 API 设计风格一致。
          */
@@ -60,7 +61,7 @@ impl Into<c_mut_str> for RtName {
     fn into(mut self) -> c_mut_str {
         /*
         as 与 cast 写法在此处均正确，但 .cast() 是更现代、更推荐的方式，因为：
-        明确表达“指针类型转换”的意图。
+        明确表达"指针类型转换"的意图。
         在泛型或复杂类型场景中更易维护。
         与 Rust 标准库的 API 设计风格一致。
          */
@@ -103,5 +104,39 @@ impl<'a> AsRef<str> for RtNameRef<'a> {
     #[inline]
     fn as_ref(&self) -> &str {
         unsafe { from_utf8_unchecked(self.buf) }
+    }
+}
+
+impl<'a> Display for RtNameRef<'a> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        let end_pos = self
+            .buf
+            .iter()
+            .position(|&b| b == 0)
+            .unwrap_or(self.buf.len());
+
+        let str_slice = &self.buf[..end_pos];
+
+        match core::str::from_utf8(str_slice) {
+            Ok(s) => write!(f, "{}", s),
+            Err(_) => write!(f, "<invalid_utf8>"),
+        }
+    }
+}
+
+impl Display for RtName {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        let end_pos = self
+            .buf
+            .iter()
+            .position(|&b| b == 0)
+            .unwrap_or(self.buf.len());
+
+        let str_slice = &self.buf[..end_pos];
+
+        match core::str::from_utf8(str_slice) {
+            Ok(s) => write!(f, "{}", s),
+            Err(_) => write!(f, "<invalid_utf8>"),
+        }
     }
 }
