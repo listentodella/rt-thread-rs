@@ -183,7 +183,7 @@ pub const __SVID_VISIBLE: u32 = 1;
 pub const __XSI_VISIBLE: u32 = 0;
 pub const __SSP_FORTIFY_LEVEL: u32 = 0;
 pub const __have_longlong64: u32 = 1;
-pub const __have_long64: u32 = 1;
+pub const __have_long32: u32 = 1;
 pub const ___int8_t_defined: u32 = 1;
 pub const ___int16_t_defined: u32 = 1;
 pub const ___int32_t_defined: u32 = 1;
@@ -553,10 +553,10 @@ pub type __int_least32_t = ::core::ffi::c_int;
 pub type __uint_least32_t = ::core::ffi::c_uint;
 pub type __int_least64_t = ::core::ffi::c_longlong;
 pub type __uint_least64_t = ::core::ffi::c_ulonglong;
-pub type __intmax_t = ::core::ffi::c_long;
-pub type __uintmax_t = ::core::ffi::c_ulong;
-pub type __intptr_t = ::core::ffi::c_long;
-pub type __uintptr_t = ::core::ffi::c_ulong;
+pub type __intmax_t = ::core::ffi::c_longlong;
+pub type __uintmax_t = ::core::ffi::c_ulonglong;
+pub type __intptr_t = ::core::ffi::c_int;
+pub type __uintptr_t = ::core::ffi::c_uint;
 pub type intmax_t = __intmax_t;
 pub type uintmax_t = __uintmax_t;
 pub type int_least8_t = __int_least8_t;
@@ -575,10 +575,15 @@ pub type int_fast32_t = ::core::ffi::c_int;
 pub type uint_fast32_t = ::core::ffi::c_uint;
 pub type int_fast64_t = ::core::ffi::c_longlong;
 pub type uint_fast64_t = ::core::ffi::c_ulonglong;
-pub type wchar_t = ::core::ffi::c_int;
-pub type max_align_t = u128;
-pub type __gnuc_va_list = __builtin_va_list;
-pub type va_list = __builtin_va_list;
+pub type wchar_t = ::core::ffi::c_uint;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct max_align_t {
+    pub __clang_max_align_nonce1: ::core::ffi::c_longlong,
+    pub __clang_max_align_nonce2: f64,
+}
+pub type __gnuc_va_list = u32;
+pub type va_list = u32;
 pub type u_int8_t = __uint8_t;
 pub type u_int16_t = __uint16_t;
 pub type u_int32_t = __uint32_t;
@@ -602,8 +607,8 @@ pub type __off_t = _off_t;
 pub type __loff_t = _off64_t;
 pub type __key_t = ::core::ffi::c_long;
 pub type _fpos_t = ::core::ffi::c_long;
-pub type __size_t = ::core::ffi::c_ulong;
-pub type _ssize_t = ::core::ffi::c_long;
+pub type __size_t = ::core::ffi::c_uint;
+pub type _ssize_t = ::core::ffi::c_int;
 pub type __ssize_t = _ssize_t;
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -619,7 +624,7 @@ pub union _mbstate_t__bindgen_ty_1 {
 }
 pub type _iconv_t = *mut ::core::ffi::c_void;
 pub type __clock_t = ::core::ffi::c_ulong;
-pub type __time_t = ::core::ffi::c_long;
+pub type __time_t = __int_least64_t;
 pub type __clockid_t = ::core::ffi::c_ulong;
 pub type __daddr_t = ::core::ffi::c_long;
 pub type __timer_t = ::core::ffi::c_ulong;
@@ -629,10 +634,10 @@ pub type __nl_item = ::core::ffi::c_int;
 pub type __nlink_t = ::core::ffi::c_ushort;
 pub type __suseconds_t = ::core::ffi::c_long;
 pub type __useconds_t = ::core::ffi::c_ulong;
-pub type __va_list = __builtin_va_list;
+pub type __va_list = u32;
 pub type __sigset_t = ::core::ffi::c_ulong;
 pub type suseconds_t = __suseconds_t;
-pub type time_t = ::core::ffi::c_long;
+pub type time_t = __int_least64_t;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct timeval {
@@ -657,7 +662,7 @@ pub type fd_mask = __fd_mask;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct fd_set {
-    pub __fds_bits: [__fd_mask; 1usize],
+    pub __fds_bits: [__fd_mask; 2usize],
 }
 pub type in_addr_t = __uint32_t;
 pub type in_port_t = __uint16_t;
@@ -729,7 +734,7 @@ pub struct pthread_once_t {
     pub is_initialized: ::core::ffi::c_int,
     pub init_executed: ::core::ffi::c_int,
 }
-pub type __ULong = ::core::ffi::c_uint;
+pub type __ULong = ::core::ffi::c_ulong;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct __lock {
@@ -1757,7 +1762,7 @@ pub struct rt_spi_message {
     pub next: *mut rt_spi_message,
     pub _bitfield_align_1: [u8; 0],
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 1usize]>,
-    pub __bindgen_padding_0: [u8; 7usize],
+    pub __bindgen_padding_0: [u8; 3usize],
 }
 impl rt_spi_message {
     #[inline]
@@ -1930,15 +1935,6 @@ pub struct rt_qspi_device {
     pub config: rt_qspi_configuration,
     pub enter_qspi_mode: ::core::option::Option<unsafe extern "C" fn(device: *mut rt_qspi_device)>,
     pub exit_qspi_mode: ::core::option::Option<unsafe extern "C" fn(device: *mut rt_qspi_device)>,
-}
-pub type __builtin_va_list = [__va_list_tag; 1usize];
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct __va_list_tag {
-    pub gp_offset: ::core::ffi::c_uint,
-    pub fp_offset: ::core::ffi::c_uint,
-    pub overflow_arg_area: *mut ::core::ffi::c_void,
-    pub reg_save_area: *mut ::core::ffi::c_void,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2133,13 +2129,13 @@ unsafe extern "C" {
     pub fn rt_vsprintf(
         dest: *mut ::core::ffi::c_char,
         format: *const ::core::ffi::c_char,
-        arg_ptr: *mut __va_list_tag,
+        arg_ptr: va_list,
     ) -> ::core::ffi::c_int;
     pub fn rt_vsnprintf(
         buf: *mut ::core::ffi::c_char,
         size: rt_size_t,
         fmt: *const ::core::ffi::c_char,
-        args: *mut __va_list_tag,
+        args: va_list,
     ) -> ::core::ffi::c_int;
     pub fn rt_sprintf(
         buf: *mut ::core::ffi::c_char,
@@ -2155,7 +2151,7 @@ unsafe extern "C" {
     pub fn rt_vsscanf(
         buffer: *const ::core::ffi::c_char,
         format: *const ::core::ffi::c_char,
-        ap: *mut __va_list_tag,
+        ap: va_list,
     ) -> ::core::ffi::c_int;
     pub fn rt_sscanf(
         str_: *const ::core::ffi::c_char,
@@ -2171,7 +2167,6 @@ unsafe extern "C" {
     pub static mut global_syscall_list: *mut finsh_syscall_item;
     pub static mut _syscall_table_begin: *mut finsh_syscall;
     pub static mut _syscall_table_end: *mut finsh_syscall;
-    pub fn finsh_syscall_next(call: *mut finsh_syscall) -> *mut finsh_syscall;
     pub fn finsh_set_device(device_name: *const ::core::ffi::c_char);
     pub fn entry() -> ::core::ffi::c_int;
     #[doc = " @addtogroup group_KernelObject\n @{"]
@@ -2786,10 +2781,8 @@ unsafe extern "C" {
         __size: usize,
         _compar: __compar_fn_t,
     ) -> *mut ::core::ffi::c_void;
-    pub fn calloc(
-        arg1: ::core::ffi::c_ulong,
-        arg2: ::core::ffi::c_ulong,
-    ) -> *mut ::core::ffi::c_void;
+    pub fn calloc(arg1: ::core::ffi::c_uint, arg2: ::core::ffi::c_uint)
+        -> *mut ::core::ffi::c_void;
     pub fn div(__numer: ::core::ffi::c_int, __denom: ::core::ffi::c_int) -> div_t;
     pub fn exit(__status: ::core::ffi::c_int) -> !;
     pub fn free(arg1: *mut ::core::ffi::c_void);
@@ -2815,7 +2808,7 @@ unsafe extern "C" {
     ) -> ::core::ffi::c_int;
     pub fn labs(arg1: ::core::ffi::c_long) -> ::core::ffi::c_long;
     pub fn ldiv(__numer: ::core::ffi::c_long, __denom: ::core::ffi::c_long) -> ldiv_t;
-    pub fn malloc(arg1: ::core::ffi::c_ulong) -> *mut ::core::ffi::c_void;
+    pub fn malloc(arg1: ::core::ffi::c_uint) -> *mut ::core::ffi::c_void;
     pub fn mblen(arg1: *const ::core::ffi::c_char, arg2: usize) -> ::core::ffi::c_int;
     pub fn _mblen_r(
         arg1: *mut _reent,
@@ -2895,7 +2888,7 @@ unsafe extern "C" {
     pub fn rand() -> ::core::ffi::c_int;
     pub fn realloc(
         arg1: *mut ::core::ffi::c_void,
-        arg2: ::core::ffi::c_ulong,
+        arg2: ::core::ffi::c_uint,
     ) -> *mut ::core::ffi::c_void;
     pub fn reallocarray(
         arg1: *mut ::core::ffi::c_void,
@@ -3084,7 +3077,7 @@ unsafe extern "C" {
         arg3: ::core::ffi::c_uint,
         arg4: *const ::core::ffi::c_char,
     );
-    #[link_name = "\u{1}___bsd_qsort_r"]
+    #[link_name = "\u{1}__bsd_qsort_r"]
     pub fn qsort_r(
         __base: *mut ::core::ffi::c_void,
         __nmemb: usize,
@@ -3102,11 +3095,11 @@ unsafe extern "C" {
         arg1: *mut _reent,
         arg2: *const ::core::ffi::c_char,
         arg3: *mut *mut ::core::ffi::c_char,
-    ) -> u128;
-    pub fn strtold(arg1: *const ::core::ffi::c_char, arg2: *mut *mut ::core::ffi::c_char) -> u128;
+    ) -> f64;
+    pub fn strtold(arg1: *const ::core::ffi::c_char, arg2: *mut *mut ::core::ffi::c_char) -> f64;
     pub fn aligned_alloc(
-        arg1: ::core::ffi::c_ulong,
-        arg2: ::core::ffi::c_ulong,
+        arg1: ::core::ffi::c_uint,
+        arg2: ::core::ffi::c_uint,
     ) -> *mut ::core::ffi::c_void;
     pub fn at_quick_exit(
         arg1: ::core::option::Option<unsafe extern "C" fn()>,

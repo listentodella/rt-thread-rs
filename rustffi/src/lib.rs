@@ -8,6 +8,7 @@ mod allocator;
 pub mod cstr;
 pub mod delay;
 pub mod fmt;
+pub mod gpio;
 pub mod spi;
 pub mod sync;
 
@@ -16,6 +17,7 @@ pub use cstr::*;
 pub use delay::*;
 pub use ffi::*;
 pub use fmt::*;
+pub use gpio::*;
 pub use spi::*;
 pub use sync::*;
 

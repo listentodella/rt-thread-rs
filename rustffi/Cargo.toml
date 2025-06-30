@@ -19,3 +19,4 @@ bindgen = "0.71.1"
 # Type aliases to C types like c_int for use with bindgen
 # cty = "0.2.2"
 embedded-hal = "1.0.0"
+num_enum = { version = "0.7.4", default-features = false }
