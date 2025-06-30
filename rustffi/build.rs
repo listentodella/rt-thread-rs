@@ -4,7 +4,7 @@ use std::path::PathBuf;
 fn main() {
     // 获取 rt-thread 根目录的路径，如果未设置，则使用默认值 ""
     let rtthread_path = env::var("RTT_ROOT")
-        .unwrap_or_else(|_| "/Users/leo/work/rt-thread-rs/rt-thread".to_string());
+        .unwrap_or_else(|_| "/Users/leo/work/sensor/rt-thread-rs/rt-thread".to_string());
     // 获取硬件目标 BSP 的路径，如果未设置，则使用默认值为 rt-thread_path + "/bsp/stm32/stm32h750vbt6"
     let hw_target_path = env::var("HW_TARGET")
         //.unwrap_or_else(|_| format!("{}/bsp/stm32/stm32h750vbt6", rtthread_path));
