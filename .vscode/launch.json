@@ -25,6 +25,25 @@
       ]
     },
     {
+      "name": "ST-Link V2-1 (STM32F401RE) - Probe-rs",
+      "cwd": "${workspaceFolder}",
+      "svdFile": "${workspaceFolder}/.vscode/STM32F401RE.svd",
+      "executable": "${workspaceFolder}/myboard/stm32f401-st-nucleo/rt-thread.elf",
+      "request": "launch",
+      "type": "probe-rs-debug",
+      "chip": "STM32F401RE",
+      "flashingConfig": {
+        "flashingEnabled": true,
+        "haltAfterReset": false
+      },
+      "coreConfigs": [
+        {
+          "coreIndex": 0,
+          "programBinary": "${workspaceFolder}/myboard/stm32f401-st-nucleo/rt-thread.elf"
+        }
+      ]
+    },
+    {
       "chip": "STM32H750VBTx",
       "consoleLogLevel": "Console",
       "coreConfigs": [
