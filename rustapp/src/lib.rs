@@ -1,15 +1,14 @@
 #![no_std]
 extern crate alloc;
 use alloc::{ffi::CString, vec};
+use core::future::pending;
 use core::sync::atomic::{AtomicU32, Ordering};
-use embedded_hal::delay::DelayNs as _;
+use embedded_hal::delay::DelayNs;
 use embedded_hal::spi::{SpiBus, SpiDevice};
 
 #[allow(non_camel_case_types, non_upper_case_globals, unused, non_snake_case)]
 use rustffi::println;
 use rustffi::{cstr, delay};
-
-mod spi_example;
 
 static CNT: AtomicU32 = AtomicU32::new(0);
 
@@ -23,8 +22,8 @@ pub extern "C" fn rust_main() -> u32 {
     let bytes = c_string.as_bytes();
     println!("bytes = {:?}", bytes);
 
-    let a = cstr::RtName::from("Hello");
-    println!("a = {:?}", a);
+    // let a = cstr::RtName::from("Hello");
+    // println!("a = {:?}", a);
 
     // let bytes = unsafe {
     // core::slice::from_raw_parts_mut(bytes.as_ptr() as *const u8 as *mut u8, bytes.len() + 1)
@@ -83,10 +82,7 @@ pub extern "C" fn create_mq() {
 
 #[no_mangle]
 pub extern "C" fn rust_test_spi() {
-    println!("Testing SPI with embedded_hal...");
-
-    // 使用 SPI 设备而不是 SPI 总线
-    let mut spi = match rustffi::spi::RtSpiDevice::<()>::new("spi30") {
+    let mut spidev = match rustffi::spi::RtSpiDevice::new("spi10", "spi1", "PB.6") {
         Ok(spi) => spi,
         Err(e) => {
             println!("Failed to create SPI device: {:?}", e);
@@ -95,27 +91,29 @@ pub extern "C" fn rust_test_spi() {
     };
     println!("spi get success");
 
-    // 使用 SPI 设备的事务接口
-    let mut buf = [0u8; 2];
-    let write_data = [0x80 | 0x75];
+    let rt_spi_config = rustffi::ffi::rt_spi_configuration {
+        mode: 0 | 1 << 2,
+        data_width: 8,
+        reserved: 0,
+        max_hz: 8000000,
+    };
 
-    match spi.transaction(&mut [
-        embedded_hal::spi::Operation::Write(&write_data),
-        embedded_hal::spi::Operation::Read(&mut buf),
-    ]) {
-        Ok(()) => println!("SPI transaction successful, buf = {:?}", buf),
-        Err(e) => println!("SPI transaction failed: {:?}", e),
+    spidev.configure(&rt_spi_config).unwrap_or_else(|e| {
+        println!("spi configure failed: {:?}", e);
+    });
+
+    let mut delay = delay::Delay;
+    let mut cnt = 0u8;
+
+    while cnt < 10 {
+        cnt += 1;
+
+        let mut buf = [0u8; 2];
+        buf[0] = 0x80 | 0x02;
+        buf[1] = 0x80 | 0x02;
+
+        spidev.transfer_in_place(&mut buf).unwrap();
+        println!("SPI transfer successful, buf = {:?}", buf);
+        delay.delay_ms(1000);
     }
-
-    // 测试 SPI 设备
-    // match spi_example::spi_demo() {
-    //     Ok(()) => println!("SPI device demo completed successfully"),
-    //     Err(e) => println!("SPI device demo failed: {:?}", e),
-    // }
-
-    // // 测试 SPI 总线
-    // match spi_example::spi_bus_demo() {
-    //     Ok(()) => println!("SPI bus demo completed successfully"),
-    //     Err(e) => println!("SPI bus demo failed: {:?}", e),
-    // }
 }

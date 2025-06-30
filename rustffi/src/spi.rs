@@ -1,6 +1,6 @@
-use crate::{ffi::*, println, RtName};
-use core::marker::PhantomData;
-use embedded_hal::spi::{ErrorType, Operation, SpiBus, SpiDevice};
+use crate::{ffi::*, RtName};
+use alloc::boxed::Box;
+use embedded_hal::spi::{ErrorType, Operation, SpiDevice};
 
 /// RT-Thread SPI 设备错误类型
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -26,121 +26,100 @@ impl embedded_hal::spi::Error for RtSpiError {
     }
 }
 
-/// RT-Thread SPI 总线适配器
-pub struct RtSpiBus<CS> {
-    device: *mut rt_spi_device,
-    _cs: PhantomData<CS>,
+/// RT-Thread SPI 设备封装
+pub struct RtSpiDevice {
+    dev: *mut rt_spi_device,
 }
 
-impl<CS> RtSpiBus<CS> {
-    /// 创建新的 SPI 总线实例
-    pub fn new(device_name: &str) -> Result<Self, RtSpiError> {
-        let device = unsafe {
-            let name = RtName::from(device_name);
-            println!("try to find device = {:?}", name);
-            rt_device_find(name.into()) as *mut rt_spi_device
-        };
-
-        if device.is_null() {
+impl RtSpiDevice {
+    /// 通过设备名查找SPI设备
+    pub fn find(device_name: &str) -> Result<Self, RtSpiError> {
+        let name = RtName::from(device_name);
+        let dev = unsafe { rt_device_find(name.into()) };
+        if dev.is_null() {
             return Err(RtSpiError::DeviceNotFound);
         }
-
-        Ok(Self {
-            device,
-            _cs: PhantomData,
-        })
+        let spi_dev = dev as *mut rt_spi_device;
+        Ok(Self { dev: spi_dev })
     }
 
-    /// 释放设备
-    pub fn close(&mut self) {}
-}
+    /// 通过总线名和片选引脚注册新设备
+    pub fn new(device_name: &str, bus_name: &str, cs_pin: &str) -> Result<Self, RtSpiError> {
+        let cs_pin = unsafe { rt_pin_get(RtName::from(cs_pin).into()) };
 
-impl<CS> ErrorType for RtSpiBus<CS> {
-    type Error = RtSpiError;
-}
+        // let spi_device = unsafe {
+        //     rt_malloc(core::mem::size_of::<rt_spi_device>() as u32) as *mut rt_spi_device
+        // };
+        // if spi_device.is_null() {
+        //     return Err(RtSpiError::OpenFailed);
+        // }
+        // use Box instead of malloc
+        let spi_device = Box::new(unsafe { core::mem::zeroed::<rt_spi_device>() });
+        let raw_dev_ptr = Box::into_raw(spi_device);
+        let result = unsafe {
+            rt_spi_bus_attach_device_cspin(
+                raw_dev_ptr,
+                RtName::from(device_name).into(),
+                RtName::from(bus_name).into(),
+                cs_pin,
+                RT_NULL as *mut core::ffi::c_void,
+            )
+        };
+        if result != 0 {
+            return Err(RtSpiError::OpenFailed);
+        }
+        Ok(Self { dev: raw_dev_ptr })
+    }
 
-impl<CS> SpiBus<u8> for RtSpiBus<CS> {
-    fn read(&mut self, words: &mut [u8]) -> Result<(), Self::Error> {
+    pub fn configure(&mut self, config: &rt_spi_configuration) -> Result<(), RtSpiError> {
+        let result = unsafe { rt_spi_configure(self.dev, config as *const _ as *mut _) };
+        if result != 0 {
+            return Err(RtSpiError::OpenFailed);
+        }
+        Ok(())
+    }
+
+    pub fn read(&mut self, words: &mut [u8]) -> Result<(), RtSpiError> {
         self.transfer(words, &[])?;
         Ok(())
     }
-
-    fn write(&mut self, words: &[u8]) -> Result<(), Self::Error> {
+    pub fn write(&mut self, words: &[u8]) -> Result<(), RtSpiError> {
         self.transfer(&mut [], words)?;
         Ok(())
     }
-
-    fn transfer(&mut self, read: &mut [u8], write: &[u8]) -> Result<(), Self::Error> {
+    pub fn transfer(&mut self, read: &mut [u8], write: &[u8]) -> Result<(), RtSpiError> {
         let _ = unsafe {
             rt_spi_transfer(
-                self.device,
+                self.dev,
                 write.as_ptr() as *const core::ffi::c_void,
                 read.as_mut_ptr() as *mut core::ffi::c_void,
                 write.len() as rt_size_t,
             )
         };
-
         Ok(())
     }
-
-    fn transfer_in_place(&mut self, words: &mut [u8]) -> Result<(), Self::Error> {
+    pub fn transfer_in_place(&mut self, words: &mut [u8]) -> Result<(), RtSpiError> {
         let write_data = words.to_vec();
         self.transfer(words, &write_data)
     }
-
-    fn flush(&mut self) -> Result<(), Self::Error> {
-        Ok(())
-    }
 }
 
-/// RT-Thread SPI 设备适配器（带片选）
-pub struct RtSpiDevice<CS> {
-    bus: RtSpiBus<CS>,
-    _cs: PhantomData<CS>,
-}
-
-impl<CS> RtSpiDevice<CS> {
-    /// 创建新的 SPI 设备实例
-    pub fn new(device_name: &str) -> Result<Self, RtSpiError> {
-        let bus = RtSpiBus::new(device_name)?;
-        Ok(Self {
-            bus,
-            _cs: PhantomData,
-        })
-    }
-}
-
-impl<CS> ErrorType for RtSpiDevice<CS> {
+impl ErrorType for RtSpiDevice {
     type Error = RtSpiError;
 }
 
-impl<CS> SpiDevice<u8> for RtSpiDevice<CS> {
+impl SpiDevice<u8> for RtSpiDevice {
     fn transaction(&mut self, operations: &mut [Operation<'_, u8>]) -> Result<(), Self::Error> {
         for op in operations {
             match op {
-                Operation::Read(buf) => self.bus.read(buf)?,
-                Operation::Write(buf) => self.bus.write(buf)?,
-                Operation::Transfer(read, write) => self.bus.transfer(read, write)?,
-                Operation::TransferInPlace(buf) => self.bus.transfer_in_place(buf)?,
-                Operation::DelayNs(_) => {
-                    // 对于 SPI 事务中的延迟，我们可以忽略或者使用 RT-Thread 的延迟函数
-                    // 这里暂时忽略
-                }
+                Operation::Read(buf) => self.read(buf)?,
+                Operation::Write(buf) => self.write(buf)?,
+                Operation::Transfer(read, write) => self.transfer(read, write)?,
+                Operation::TransferInPlace(buf) => self.transfer_in_place(buf)?,
+                Operation::DelayNs(_) => {}
             }
         }
         Ok(())
-    }
-}
-
-impl<CS> Drop for RtSpiDevice<CS> {
-    fn drop(&mut self) {
-        self.bus.close();
-    }
-}
-
-impl<CS> Drop for RtSpiBus<CS> {
-    fn drop(&mut self) {
-        self.close();
     }
 }
 

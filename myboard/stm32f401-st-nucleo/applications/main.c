@@ -12,23 +12,29 @@
 #include <board.h>
 #include <rtthread.h>
 #include <drv_gpio.h>
+#include <drivers/dev_spi.h>
 #ifndef RT_USING_NANO
 #include <rtdevice.h>
 #endif /* RT_USING_NANO */
+#include <rust.h>
 
 /* defined the LD2 (user LED) pin: PA5 */
-#define LED2_PIN    GET_PIN(A, 5)
+#define LED2_PIN GET_PIN(A, 5)
 
 int main(void)
 {
     /* set LED0 pin mode to output */
-    rt_pin_mode(LED2_PIN, PIN_MODE_OUTPUT);
+    // rt_pin_mode(LED2_PIN, PIN_MODE_OUTPUT);
 
-    while (1)
-    {
-        rt_pin_write(LED2_PIN, PIN_HIGH);
+    create_mq();
+
+    rust_test_spi();
+
+    while (1) {
+        // rust_main();
+        // rt_pin_write(LED2_PIN, PIN_HIGH);
         rt_thread_mdelay(500);
-        rt_pin_write(LED2_PIN, PIN_LOW);
+        // rt_pin_write(LED2_PIN, PIN_LOW);
         rt_thread_mdelay(500);
     }
 }
