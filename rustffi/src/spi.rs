@@ -99,8 +99,16 @@ impl RtSpiDevice {
         Ok(())
     }
     pub fn transfer_in_place(&mut self, words: &mut [u8]) -> Result<(), RtSpiError> {
-        let write_data = words.to_vec();
-        self.transfer(words, &write_data)
+        // 直接使用同一个缓冲区进行发送和接收，就像 C 版本的 rt_spi_transfer
+        let _ = unsafe {
+            rt_spi_transfer(
+                self.dev,
+                words.as_ptr() as *const core::ffi::c_void,
+                words.as_mut_ptr() as *mut core::ffi::c_void,
+                words.len() as rt_size_t,
+            )
+        };
+        Ok(())
     }
 }
 
