@@ -1,7 +1,7 @@
 use crate::{ffi::*, RtName};
 use alloc::string::String;
 use core::convert::Infallible;
-use embedded_hal::digital::{ErrorType, InputPin, OutputPin};
+use embedded_hal::digital::{ErrorType, InputPin, OutputPin, StatefulOutputPin};
 use num_enum::IntoPrimitive;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, IntoPrimitive)]
@@ -98,6 +98,18 @@ impl InputPin for RtInputPin {
 
     #[inline]
     fn is_low(&mut self) -> Result<bool, Self::Error> {
+        Ok(unsafe { rt_pin_read(self.inner.pin) == 0 })
+    }
+}
+
+impl StatefulOutputPin for RtOutputPin {
+    #[inline]
+    fn is_set_high(&mut self) -> Result<bool, Self::Error> {
+        Ok(unsafe { rt_pin_read(self.inner.pin) == 1 })
+    }
+
+    #[inline]
+    fn is_set_low(&mut self) -> Result<bool, Self::Error> {
         Ok(unsafe { rt_pin_read(self.inner.pin) == 0 })
     }
 }
