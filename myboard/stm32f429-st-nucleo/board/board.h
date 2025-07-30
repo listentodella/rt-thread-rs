@@ -18,25 +18,33 @@
 extern "C" {
 #endif
 
-#define STM32_FLASH_START_ADRESS     ((uint32_t)0x08000000)
-#define STM32_FLASH_SIZE             (2048 * 1024)
-#define STM32_FLASH_END_ADDRESS      ((uint32_t)(STM32_FLASH_START_ADRESS + STM32_FLASH_SIZE))
+#define BSP_UART1_RX_BUFSIZE     256
+#define BSP_UART1_TX_BUFSIZE     256
+#define BSP_UART2_RX_BUFSIZE     256
+#define BSP_UART2_TX_BUFSIZE     256
+#define BSP_UART3_RX_BUFSIZE     256
+#define BSP_UART3_TX_BUFSIZE     256
 
-#define STM32_SRAM_SIZE             (256 - 64)
-#define STM32_SRAM_END              (0x20000000 + STM32_SRAM_SIZE * 1024)
+#define STM32_FLASH_START_ADRESS ((uint32_t)0x08000000)
+#define STM32_FLASH_SIZE         (2048 * 1024)
+#define STM32_FLASH_END_ADDRESS                                                \
+    ((uint32_t)(STM32_FLASH_START_ADRESS + STM32_FLASH_SIZE))
+
+#define STM32_SRAM_SIZE (256 - 64)
+#define STM32_SRAM_END  (0x20000000 + STM32_SRAM_SIZE * 1024)
 
 #if defined(__ARMCC_VERSION)
 extern int Image$$RW_IRAM1$$ZI$$Limit;
-#define HEAP_BEGIN      (&Image$$RW_IRAM1$$ZI$$Limit)
+#define HEAP_BEGIN (&Image$$RW_IRAM1$$ZI$$Limit)
 #elif __ICCARM__
-#pragma section="CSTACK"
-#define HEAP_BEGIN      (__segment_end("CSTACK"))
+#pragma section = "CSTACK"
+#define HEAP_BEGIN (__segment_end("CSTACK"))
 #else
 extern int __bss_end;
-#define HEAP_BEGIN      (&__bss_end)
+#define HEAP_BEGIN (&__bss_end)
 #endif
 
-#define HEAP_END        STM32_SRAM_END
+#define HEAP_END STM32_SRAM_END
 
 void SystemClock_Config(void);
 
@@ -45,4 +53,3 @@ void SystemClock_Config(void);
 #endif
 
 #endif
-

@@ -1,6 +1,11 @@
 menu "Hardware Drivers Config"
 
 menu "Onboard Peripheral Drivers"
+    config BSP_USING_STLINK_TO_USART
+        bool "Enable STLINK TO USART (uart3)"
+        select BSP_USING_UART
+        select BSP_USING_UART3
+        default y
 
     config BSP_USING_SDRAM
         bool "Enable SDRAM"
@@ -43,7 +48,14 @@ menu "On-chip Peripheral Drivers"
                 bool "Enable UART2 RX DMA"
                 depends on BSP_USING_UART2 && RT_SERIAL_USING_DMA
                 default n
+            config BSP_USING_UART3
+                bool "Enable UART3"
+                default n
 
+            config BSP_UART3_RX_USING_DMA
+                bool "Enable UART3 RX DMA"
+                depends on BSP_USING_UART3 && RT_SERIAL_USING_DMA
+                default n
         endif
 
     menuconfig BSP_USING_I2C1
